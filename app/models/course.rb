@@ -17,8 +17,14 @@ class Course < ActiveRecord::Base
 
   def self.load!(raw_classes, semester)
     raw_classes.each do |raw_class|
-      next unless id = raw_class['id']
+      next unless id = raw_class[HTTP::Coursews::MIT_CLASS_KEY]
       semester.classes.where(number: id).first_or_create!.populate! raw_class
+    end
+    raw_classes.each do |raw_class|
+      next unless id = raw_class['section-of']
+      section_id = raw_class[HTTP::Coursews::SECTION_KEY]
+      mit_class = semester.classes.where(number: id).first
+      mit_class.sections.where(number: section_id).first_or_create!.populate! raw_class
     end
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151120081357) do
+ActiveRecord::Schema.define(version: 20151120092829) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,12 @@ ActiveRecord::Schema.define(version: 20151120081357) do
 
   create_table "instructors", force: :cascade do |t|
     t.string   "name",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "locations", force: :cascade do |t|
+    t.string   "number",     null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -43,6 +49,30 @@ ActiveRecord::Schema.define(version: 20151120081357) do
     t.string   "ci"
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
+  end
+
+  create_table "mit_times", force: :cascade do |t|
+    t.integer  "day",        null: false
+    t.time     "start",      null: false
+    t.time     "finish",     null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "mit_times", ["day", "start", "finish"], name: "index_mit_times_on_day_and_start_and_finish", unique: true, using: :btree
+
+  create_table "mit_times_sections", force: :cascade do |t|
+    t.integer "section_id"
+    t.integer "mit_time_id"
+  end
+
+  create_table "sections", force: :cascade do |t|
+    t.string   "number",       null: false
+    t.integer  "size"
+    t.integer  "mit_class_id", null: false
+    t.integer  "location_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "semesters", force: :cascade do |t|
