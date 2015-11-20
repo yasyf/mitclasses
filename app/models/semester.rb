@@ -15,6 +15,10 @@ class Semester < ActiveRecord::Base
     end
   end
 
+  def self.next(today = Date.today)
+    last(today + 1.year)
+  end
+
   def self.current(today = Date.today)
     case today.month
     when 1..3

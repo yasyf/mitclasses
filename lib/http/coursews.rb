@@ -4,7 +4,8 @@ module HTTP
     base_uri 'coursews.mit.edu'
 
     def initialize(semester, course = nil)
-      @options = { query: { term: semester, courses: course } }
+      @options = { query: { term: semester } }
+      @options[:query][:courses] = course if course.present?
     end
 
     def classes
