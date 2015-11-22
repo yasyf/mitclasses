@@ -4,7 +4,7 @@ class Section < ActiveRecord::Base
 
   belongs_to :mit_class
   belongs_to :location
-  has_and_belongs_to_many :times, class_name: :MitTime
+  has_and_belongs_to_many :times, class_name: 'MitTime'
 
   validates :number, presence: true, uniqueness: true
 

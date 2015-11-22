@@ -1,5 +1,5 @@
 class Semester < ActiveRecord::Base
-  has_many :classes, class_name: :MitClass
+  has_many :classes, class_name: 'MitClass'
 
   validates :year, presence: true, numericality: { greater_than: 2000, less_than: 3000 }
   validates :season, presence: true, uniqueness: { scope: :year }
@@ -15,29 +15,39 @@ class Semester < ActiveRecord::Base
     end
   end
 
+  def last
+    if fall?
+      self.class.where(season: self.class.seasons[:spring], year: year)
+    elsif spring?
+      self.class.where(season: self.class.seasons[:fall], year: year - 1)
+    end.first_or_create!
+  end
+
+  def next
+    if fall?
+      self.class.where(season: self.class.seasons[:spring], year: year + 1)
+    elsif spring?
+      self.class.where(season: self.class.seasons[:fall], year: year)
+    end.first_or_create!
+  end
+
   def self.next(today = Date.today)
     last(today + 1.year)
   end
 
   def self.current(today = Date.today)
-    case today.month
-    when 1..3
+    if today.month <= 6
       where season: seasons[:spring], year: today.year
-    when 4..11
-      where season: seasons[:fall], year: today.year + 1
-    when 12
-      where season: seasons[:spring], year: today.year + 1
+    else
+      where season: seasons[:fall], year: today.year
     end.first_or_create!
   end
 
   def self.last(today = Date.today)
-    case today.month
-    when 1..3
-      where season: seasons[:fall], year: today.year
-    when 4..11
+    if today.month <= 6
+      where season: seasons[:fall], year: today.year - 1
+    else
       where season: seasons[:spring], year: today.year
-    when 12
-      where season: seasons[:fall], year: today.year + 1
     end.first_or_create!
   end
 end

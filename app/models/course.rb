@@ -1,5 +1,5 @@
 class Course < ActiveRecord::Base
-  has_many :classes, class_name: :MitClass
+  has_many :classes, class_name: 'MitClass'
 
   validates :number, presence: true, uniqueness: true
 

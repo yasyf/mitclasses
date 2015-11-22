@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151120092829) do
+ActiveRecord::Schema.define(version: 20151122091129) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,6 +21,23 @@ ActiveRecord::Schema.define(version: 20151120092829) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "evaluations", force: :cascade do |t|
+    t.integer  "mit_class_id",            null: false
+    t.float    "assigments_useful"
+    t.float    "expectations_clear"
+    t.float    "grading_fair"
+    t.float    "learning_objectives_met"
+    t.float    "classroom_hours"
+    t.float    "home_hours"
+    t.float    "rating"
+    t.float    "pace"
+    t.float    "percent_response"
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  add_index "evaluations", ["mit_class_id"], name: "index_evaluations_on_mit_class_id", using: :btree
 
   create_table "instructors", force: :cascade do |t|
     t.string   "name",       null: false
@@ -51,6 +68,10 @@ ActiveRecord::Schema.define(version: 20151120092829) do
     t.datetime "updated_at",                 null: false
   end
 
+  add_index "mit_classes", ["course_id"], name: "index_mit_classes_on_course_id", using: :btree
+  add_index "mit_classes", ["instructor_id"], name: "index_mit_classes_on_instructor_id", using: :btree
+  add_index "mit_classes", ["semester_id"], name: "index_mit_classes_on_semester_id", using: :btree
+
   create_table "mit_times", force: :cascade do |t|
     t.integer  "day",        null: false
     t.time     "start",      null: false
@@ -75,6 +96,9 @@ ActiveRecord::Schema.define(version: 20151120092829) do
     t.datetime "updated_at",   null: false
   end
 
+  add_index "sections", ["location_id"], name: "index_sections_on_location_id", using: :btree
+  add_index "sections", ["mit_class_id"], name: "index_sections_on_mit_class_id", using: :btree
+
   create_table "semesters", force: :cascade do |t|
     t.integer  "year",       null: false
     t.integer  "season",     null: false
@@ -84,4 +108,10 @@ ActiveRecord::Schema.define(version: 20151120092829) do
 
   add_index "semesters", ["season", "year"], name: "index_semesters_on_season_and_year", unique: true, using: :btree
 
+  add_foreign_key "evaluations", "mit_classes"
+  add_foreign_key "mit_classes", "courses"
+  add_foreign_key "mit_classes", "instructors"
+  add_foreign_key "mit_classes", "semesters"
+  add_foreign_key "sections", "locations"
+  add_foreign_key "sections", "mit_classes"
 end

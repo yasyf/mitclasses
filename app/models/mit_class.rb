@@ -6,6 +6,7 @@ class MitClass < ActiveRecord::Base
   belongs_to :instructor
 
   has_many :sections
+  has_one :evaluation
 
   before_create :set_course
 
