@@ -1,5 +1,5 @@
 class Semester < ActiveRecord::Base
-  has_many :classes, class_name: "MitClass"
+  has_many :classes, class_name: :MitClass
 
   validates :year, presence: true, numericality: { greater_than: 2000, less_than: 3000 }
   validates :season, presence: true, uniqueness: { scope: :year }

@@ -1,6 +1,6 @@
 class Location < ActiveRecord::Base
   has_many :sections
-  has_many :mit_classes, through: :sections
+  has_many :classes, source: :mit_class, through: :sections
 
   validates :number, presence: true, uniqueness: true
 
