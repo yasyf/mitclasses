@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151122091129) do
+ActiveRecord::Schema.define(version: 20151123042039) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -108,10 +108,27 @@ ActiveRecord::Schema.define(version: 20151122091129) do
 
   add_index "semesters", ["season", "year"], name: "index_semesters_on_season_and_year", unique: true, using: :btree
 
+  create_table "textbooks", force: :cascade do |t|
+    t.integer  "mit_class_id"
+    t.string   "title",                       null: false
+    t.boolean  "required",     default: true, null: false
+    t.string   "asin"
+    t.string   "author",                      null: false
+    t.integer  "isbn",                        null: false
+    t.string   "publisher"
+    t.string   "image"
+    t.float    "retail"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+  end
+
+  add_index "textbooks", ["mit_class_id"], name: "index_textbooks_on_mit_class_id", using: :btree
+
   add_foreign_key "evaluations", "mit_classes"
   add_foreign_key "mit_classes", "courses"
   add_foreign_key "mit_classes", "instructors"
   add_foreign_key "mit_classes", "semesters"
   add_foreign_key "sections", "locations"
   add_foreign_key "sections", "mit_classes"
+  add_foreign_key "textbooks", "mit_classes"
 end
