@@ -9,9 +9,9 @@ class CreateEvaluations < ActiveRecord::Migration
       t.float :learning_objectives_met
       t.float :classroom_hours
       t.float :home_hours
-      t.float :rating
+      t.float :rating, null: false
       t.float :pace
-      t.float :percent_response
+      t.float :percent_response, null: false
 
       t.timestamps null: false
     end

@@ -5,7 +5,7 @@ class Evaluation < ActiveRecord::Base
   has_one :instructor, through: :mit_class
   has_one :semester, through: :mit_class
 
-  after_create :populate!
+  before_create :populate!
 
   private
 
