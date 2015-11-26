@@ -1,5 +1,5 @@
 class MitTime < ActiveRecord::Base
-  has_many :sections
+  has_and_belongs_to_many :sections
   has_many :mit_classes, through: :sections
 
   validates :start, presence: true
