@@ -6,7 +6,7 @@ class CreateTextbooks < ActiveRecord::Migration
       t.boolean :required, null: false, default: true
       t.string :asin
       t.string :author, null: false
-      t.integer :isbn, null: false
+      t.bigint :isbn, null: false
       t.string :publisher
       t.string :image
       t.float :retail

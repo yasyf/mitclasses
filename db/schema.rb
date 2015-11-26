@@ -110,16 +110,16 @@ ActiveRecord::Schema.define(version: 20151123042039) do
 
   create_table "textbooks", force: :cascade do |t|
     t.integer  "mit_class_id"
-    t.string   "title",                       null: false
-    t.boolean  "required",     default: true, null: false
+    t.string   "title",                                 null: false
+    t.boolean  "required",               default: true, null: false
     t.string   "asin"
-    t.string   "author",                      null: false
-    t.integer  "isbn",                        null: false
+    t.string   "author",                                null: false
+    t.integer  "isbn",         limit: 8,                null: false
     t.string   "publisher"
     t.string   "image"
     t.float    "retail"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
   end
 
   add_index "textbooks", ["mit_class_id"], name: "index_textbooks_on_mit_class_id", using: :btree

@@ -6,6 +6,7 @@ class MitClass < ActiveRecord::Base
   belongs_to :instructor
 
   has_many :sections
+  has_many :textbooks
   has_one :evaluation
 
   before_create :set_course
@@ -23,6 +24,7 @@ class MitClass < ActiveRecord::Base
     self.units = raw['units'].split('-').map(&:to_i) if raw['units'].present?
     self.instructor = Instructor.where(name: raw['in-charge']).first_or_create! if raw['in-charge'].present?
     save!
+    Textbook.load! self
   end
 
   def units
