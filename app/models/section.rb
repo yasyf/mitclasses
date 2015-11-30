@@ -2,13 +2,15 @@ class Section < ActiveRecord::Base
   REGEX = /([A-Z]{1,5})(?: EVE \()?[\s]?([0-9]{0,2})[:\.]?([0-9]{0,2})-?([0-9]{0,2})[:\.]?([0-9]{0,2}) ?([A-Z]{2})?\)?/
   BASE_TIME = Time.new 0, 1, 1
 
+  class InvalidSection < ActiveRecord::ActiveRecordError; end;
+
   belongs_to :mit_class
   belongs_to :location
   has_and_belongs_to_many :times, class_name: 'MitTime'
 
   validates :number, presence: true, uniqueness: true
 
-  enum size: [:lecture, :recitation]
+  enum size: [:lecture, :recitation, :lab]
 
   delegate :semester, :course, to: :mit_class
 
@@ -20,6 +22,10 @@ class Section < ActiveRecord::Base
       recitation!
     when 'LectureSession'
       lecture!
+    when 'LabSession'
+      lab!
+    else
+      raise InvalidSection, raw['type']
     end
 
     time, place = raw['timeAndPlace'].split(' ')
@@ -45,7 +51,22 @@ class Section < ActiveRecord::Base
     save!
   end
 
+  def conflicts?(other_sections)
+    conflicts_with_sections? Array.wrap(other_sections)
+  end
+
   private
+
+  def conflicts_with_sections?(other_sections)
+    other_sections.reject { |os| conflicts_with_section? os }.empty?
+  end
+
+  def conflicts_with_section?(other_section)
+    times.each do |time|
+      return false unless time.conflicts?(other_section.times)
+    end
+    true
+  end
 
   def raw_data
     HTTP::Coursews.new(semester, course).section(number)

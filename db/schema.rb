@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151123042039) do
+ActiveRecord::Schema.define(version: 20151130095215) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,6 +72,11 @@ ActiveRecord::Schema.define(version: 20151123042039) do
   add_index "mit_classes", ["instructor_id"], name: "index_mit_classes_on_instructor_id", using: :btree
   add_index "mit_classes", ["semester_id"], name: "index_mit_classes_on_semester_id", using: :btree
 
+  create_table "mit_classes_schedules", force: :cascade do |t|
+    t.integer "mit_class_id"
+    t.integer "schedule_id"
+  end
+
   create_table "mit_times", force: :cascade do |t|
     t.integer  "day",        null: false
     t.time     "start",      null: false
@@ -85,6 +90,11 @@ ActiveRecord::Schema.define(version: 20151123042039) do
   create_table "mit_times_sections", force: :cascade do |t|
     t.integer "section_id"
     t.integer "mit_time_id"
+  end
+
+  create_table "schedules", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "sections", force: :cascade do |t|

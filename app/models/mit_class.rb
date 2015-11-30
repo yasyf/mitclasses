@@ -9,6 +9,8 @@ class MitClass < ActiveRecord::Base
   has_many :textbooks
   has_one :evaluation
 
+  has_and_belongs_to_many :schedules
+
   before_create :set_course
 
   validates :semester, presence: true
@@ -41,6 +43,21 @@ class MitClass < ActiveRecord::Base
 
   def coreq_classes(semester = [Semester.current, Semester.last])
     self.class.where(semester: semester, number: coreqs)
+  end
+
+  def conflicts?(other_class)
+    conflicts(other_class).present?
+  end
+
+  def conflicts(other_class)
+    other_sections_by_size = other_class.sections.group_by(&:size)
+    conflicts = []
+    sections.group_by(&:size).each do |size, grouped_sections|
+      other_sections_by_size.each do |other_size, other_grouped_sections|
+        conflicts << [size, other_size] if grouped_sections.reject { |s| s.conflicts? other_grouped_sections }.empty?
+      end
+    end
+    conflicts
   end
 
   private
