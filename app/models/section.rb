@@ -8,7 +8,7 @@ class Section < ActiveRecord::Base
   belongs_to :location
   has_and_belongs_to_many :times, class_name: 'MitTime'
 
-  validates :number, presence: true, uniqueness: true
+  validates :number, presence: true, uniqueness: { scope: [:mit_class] }
 
   enum size: [:lecture, :recitation, :lab]
 

@@ -30,9 +30,9 @@ ActiveRecord::Schema.define(version: 20151130095215) do
     t.float    "learning_objectives_met"
     t.float    "classroom_hours"
     t.float    "home_hours"
-    t.float    "rating"
+    t.float    "rating",                  null: false
     t.float    "pace"
-    t.float    "percent_response"
+    t.float    "percent_response",        null: false
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
   end
@@ -53,23 +53,24 @@ ActiveRecord::Schema.define(version: 20151130095215) do
 
   create_table "mit_classes", force: :cascade do |t|
     t.string   "name"
-    t.string   "number",                     null: false
+    t.string   "number",        null: false
     t.text     "description"
     t.string   "short_name"
-    t.integer  "semester_id",                null: false
-    t.integer  "course_id",                  null: false
+    t.integer  "semester_id",   null: false
+    t.integer  "course_id",     null: false
     t.integer  "instructor_id"
-    t.string   "prereqs",       default: [],              array: true
-    t.string   "coreqs",        default: [],              array: true
-    t.string   "units",                                   array: true
+    t.json     "prereqs"
+    t.json     "coreqs"
+    t.string   "units",                      array: true
     t.string   "hass"
     t.string   "ci"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
   end
 
   add_index "mit_classes", ["course_id"], name: "index_mit_classes_on_course_id", using: :btree
   add_index "mit_classes", ["instructor_id"], name: "index_mit_classes_on_instructor_id", using: :btree
+  add_index "mit_classes", ["number", "semester_id"], name: "index_mit_classes_on_number_and_semester_id", unique: true, using: :btree
   add_index "mit_classes", ["semester_id"], name: "index_mit_classes_on_semester_id", using: :btree
 
   create_table "mit_classes_schedules", force: :cascade do |t|
@@ -108,6 +109,7 @@ ActiveRecord::Schema.define(version: 20151130095215) do
 
   add_index "sections", ["location_id"], name: "index_sections_on_location_id", using: :btree
   add_index "sections", ["mit_class_id"], name: "index_sections_on_mit_class_id", using: :btree
+  add_index "sections", ["number", "mit_class_id"], name: "index_sections_on_number_and_mit_class_id", unique: true, using: :btree
 
   create_table "semesters", force: :cascade do |t|
     t.integer  "year",       null: false

@@ -8,9 +8,11 @@ class Schedule < ActiveRecord::Base
   end
 
   def conflicts
-    grouped_classes = classes.includes(:semester, sections: :times).group_by(&:semester)
-    grouped_classes.each_with_object({}) do |(semester, semester_classes), hash|
-      hash[semester] = semester_classes.combination(2).select { |a, b| a.conflicts? b }
+    @conflicts ||= begin
+      grouped_classes = classes.includes(:semester, sections: :times).group_by(&:semester)
+      grouped_classes.each_with_object({}) do |(semester, semester_classes), hash|
+        hash[semester] = semester_classes.combination(2).select { |a, b| a.conflicts? b }
+      end
     end
   end
 end
