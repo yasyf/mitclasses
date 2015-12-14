@@ -8,12 +8,11 @@ module Groups
       mit_classes.map(&:number).include?(@class_number)
     end
 
-    def to_s
+    def to_s(nested: false)
       @class_number
     end
 
     alias_method :to_h, :to_s
-    alias_method :nested_to_s, :to_s
   end
 
   class Operation
@@ -50,14 +49,9 @@ module Groups
       raise NotImplementedError
     end
 
-    def to_s
-      @classes.map { |c| c.send(:nested_to_s) }.join(" #{op} ")
-    end
-
-    private
-
-    def nested_to_s
-      @classes.size > 1 ? "(#{to_s})" : to_s
+    def to_s(nested: false)
+      s = @classes.map { |c| c.to_s(nested: true) }.join(" #{op} ")
+      (nested && @classes.size > 1) ? "(#{s})" : s
     end
   end
 
