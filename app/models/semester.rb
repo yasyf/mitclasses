@@ -20,17 +20,17 @@ class Semester < ActiveRecord::Base
 
   def last
     if fall?
-      self.class.where(season: self.class.seasons[:spring], year: year)
+      self.class.where(season: self.class.seasons[:spring], year: year - 1)
     elsif spring?
-      self.class.where(season: self.class.seasons[:fall], year: year - 1)
+      self.class.where(season: self.class.seasons[:fall], year: year)
     end.first_or_create!
   end
 
   def next
     if fall?
-      self.class.where(season: self.class.seasons[:spring], year: year + 1)
+      self.class.where(season: self.class.seasons[:spring], year: year)
     elsif spring?
-      self.class.where(season: self.class.seasons[:fall], year: year)
+      self.class.where(season: self.class.seasons[:fall], year: year + 1)
     end.first_or_create!
   end
 
@@ -42,7 +42,7 @@ class Semester < ActiveRecord::Base
     if today.month <= 6
       where season: seasons[:spring], year: today.year
     else
-      where season: seasons[:fall], year: today.year
+      where season: seasons[:fall], year: today.year + 1
     end.first_or_create!
   end
 
