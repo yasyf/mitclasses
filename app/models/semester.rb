@@ -4,7 +4,7 @@ class Semester < ActiveRecord::Base
   validates :year, presence: true, numericality: { greater_than: 2000, less_than: 3000 }
   validates :season, presence: true, uniqueness: { scope: :year }
 
-  enum season: [:fall, :spring]
+  enum season: [:fall, :spring, :iap]
 
   def to_s
     year.to_s + case season.to_sym
@@ -12,6 +12,8 @@ class Semester < ActiveRecord::Base
       'FA'
     when :spring
       'SP'
+    when :iap
+      'IAP'
     end
   end
 
