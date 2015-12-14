@@ -20,7 +20,7 @@ module HTTP
 
     def evaluation(mit_class)
       get '/ose-rpt/subjectEvaluationSearch.htm'
-      set 'termId', mit_class.semester.last
+      set 'termId', mit_class.semester
       set 'subjectCode', mit_class.number
       set 'instructorName', mit_class.instructor
       submit

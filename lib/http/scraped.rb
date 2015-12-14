@@ -1,21 +1,23 @@
 module HTTP
   class Scraped
-    @@insecure = false
+    attr_reader :uri
+
+    @insecure = false
 
     def initialize
       @agent = Mechanize.new
     end
 
     def self.domain(domain)
-      @@domain = domain
+      @domain = domain
     end
 
     def self.ssl(ssl)
-      @@insecure = !ssl
+      @insecure = !ssl
     end
 
     def get(path, query = nil)
-      @response = @agent.get(url(path), query)
+      @response = @agent.get(self.class.url(path), query)
       update_instance_variables
     end
 
@@ -68,8 +70,8 @@ module HTTP
       @response
     end
 
-    def url(path)
-      "#{@@insecure ? 'http' : 'https'}://#{@@domain}/#{path}"
+    def self.url(path)
+      "#{@insecure ? 'http' : 'https'}://#{@domain}/#{path}"
     end
   end
 end

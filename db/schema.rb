@@ -64,6 +64,7 @@ ActiveRecord::Schema.define(version: 20151130095215) do
     t.string   "units",                      array: true
     t.string   "hass"
     t.string   "ci"
+    t.string   "site"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
   end

@@ -1,7 +1,7 @@
 class CreateEvaluations < ActiveRecord::Migration
   def change
     create_table :evaluations do |t|
-      t.belongs_to :mit_class, index: true, foreign_key: true, null: false
+      t.belongs_to :mit_class, index: true, foreign_key: true, null: false, unique: true
 
       t.float :assigments_useful
       t.float :expectations_clear

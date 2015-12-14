@@ -18,6 +18,7 @@ class MitClass < ActiveRecord::Base
 
   def populate!(raw = nil)
     raw ||= raw_data
+
     update short_name: raw['shortLabel'], description: raw['description'], name: raw['label']
     update hass: raw['hass_attribute'], ci: raw['comm_req_attribute']
     %w(prereqs coreqs).each do |req|
@@ -27,7 +28,10 @@ class MitClass < ActiveRecord::Base
     self.units = raw['units'].split('-').map(&:to_i) if raw['units'].present?
     self.instructor = Instructor.where(name: raw['in-charge']).first_or_create! if raw['in-charge'].present?
     save!
-    Textbook.load! self
+
+    Thread.new { set_site! }
+    Thread.new { Evaluation.load! self }
+    Thread.new { Textbook.load! self }
   end
 
   def units
@@ -60,6 +64,10 @@ class MitClass < ActiveRecord::Base
   end
 
   private
+
+  def set_site!
+    update! site: HTTP::Course.new.class_site(self)
+  end
 
   def self.parse_class_group(str)
     return nil unless str.present?

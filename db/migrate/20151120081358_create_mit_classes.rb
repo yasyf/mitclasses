@@ -13,6 +13,7 @@ class CreateMitClasses < ActiveRecord::Migration
       t.string :units, array: true
       t.string :hass
       t.string :ci
+      t.string :site
 
       t.index [:number, :semester_id], unique: true
 

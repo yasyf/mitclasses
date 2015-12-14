@@ -3,7 +3,7 @@ module HTTP
     def initialize(associate_tag = nil)
       @request = Vacuum.new
       @request.associate_tag = associate_tag || ENV['ASSOCIATE_TAG']
-      @stoplight = Stoplight(self) { @request.item_search query: @query }
+      @stoplight = Stoplight(self.class) { @request.item_search query: @query }
                     .with_fallback { |e| Rails.logger.warn e; nil }
                     .with_threshold(1)
                     .with_timeout(1)
