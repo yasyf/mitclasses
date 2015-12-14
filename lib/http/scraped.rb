@@ -56,10 +56,14 @@ module HTTP
       @form.send "#{key}=", value
     end
 
+    def links
+      @response.links
+    end
+
     private
 
     def find_link
-      @response.links.each do |link|
+      links.each do |link|
         return link if yield link
       end
     end

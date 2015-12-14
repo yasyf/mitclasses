@@ -18,6 +18,10 @@ class Semester < ActiveRecord::Base
     stellar ? (prefix.downcase + year.to_s.last(2)) : (year.to_s + prefix)
   end
 
+  def mit_class(number)
+    classes.where(number: number).first
+  end
+
   def last
     if fall?
       self.class.where(season: self.class.seasons[:spring], year: year - 1)
