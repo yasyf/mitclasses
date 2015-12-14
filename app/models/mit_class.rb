@@ -63,6 +63,20 @@ class MitClass < ActiveRecord::Base
     conflicts
   end
 
+  def site_uri
+    URI(site)
+  end
+
+  def stellar_uri
+    path = "#{course}/#{semester.to_s(stellar: true)}/#{number}"
+    URI("https://stellar.mit.edu/S/course/#{path}/")
+  end
+
+  def lmod_uri
+    uuid = "/course/#{course}/#{semester.to_s(stellar: true)}/#{number}"
+    URI("https://learning-modules.mit.edu/class/index.html?uuid=#{uuid}")
+  end
+
   private
 
   def set_site!

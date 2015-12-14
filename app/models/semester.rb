@@ -6,8 +6,8 @@ class Semester < ActiveRecord::Base
 
   enum season: [:fall, :spring, :iap]
 
-  def to_s
-    year.to_s + case season.to_sym
+  def to_s(stellar: false)
+    prefix = case season.to_sym
     when :fall
       'FA'
     when :spring
@@ -15,6 +15,7 @@ class Semester < ActiveRecord::Base
     when :iap
       'IAP'
     end
+    stellar ? (prefix.downcase + year.to_s.last(2)) : (year.to_s + prefix)
   end
 
   def last
