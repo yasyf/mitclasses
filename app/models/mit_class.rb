@@ -22,7 +22,7 @@ class MitClass < ActiveRecord::Base
     update hass: raw['hass_attribute'], ci: raw['comm_req_attribute']
     %w(prereqs coreqs).each do |req|
       parsed = self.class.parse_class_group(raw[req])
-      send "#{req}=", parsed.to_h if parsed.present?
+      send "#{req}=", parsed.simplify.to_h if parsed.present?
     end
     self.units = raw['units'].split('-').map(&:to_i) if raw['units'].present?
     self.instructor = Instructor.where(name: raw['in-charge']).first_or_create! if raw['in-charge'].present?

@@ -8,6 +8,10 @@ module Groups
       mit_classes.map(&:number).include?(@class_number)
     end
 
+    def simplify
+      self
+    end
+
     def to_s(nested: false)
       @class_number
     end
@@ -49,21 +53,41 @@ module Groups
       raise NotImplementedError
     end
 
+    def simplify
+      self.class.new simplified_classes
+    end
+
+    def simplify!
+      @classes = simplified_classes
+      self
+    end
+
     def to_s(nested: false)
       s = @classes.map { |c| c.to_s(nested: true) }.join(" #{op} ")
       (nested && @classes.size > 1) ? "(#{s})" : s
+    end
+
+    private
+
+    def simplified_classes
+      classes = @classes.map(&:simplify)
+      if classes.all? { |c| c.is_a?(self.class) }
+        classes.flat_map { |c| c.instance_variable_get(:@classes) }
+      else
+        classes
+      end
     end
   end
 
   class Or < Operation
     def satisfied?(classes)
-      @classes.map { |c| c.satisfied? classes }.any?
+      @classes.any? { |c| c.satisfied? classes }
     end
   end
 
   class And < Operation
     def satisfied?(classes)
-      @classes.map { |c| c.satisfied? classes }.all?
+      @classes.all? { |c| c.satisfied? classes }
     end
   end
 end
