@@ -15,6 +15,7 @@ class Evaluation < ActiveRecord::Base
   end
 
   def populate!
-    update_attributes! HTTP::Evaluations.new.evaluation(mit_class)
+    evaluation = HTTP::Evaluations.new.evaluation(mit_class)
+    evaluation.present? ? update_attributes!(evaluation) : destroy!
   end
 end

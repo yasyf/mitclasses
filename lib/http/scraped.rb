@@ -34,6 +34,7 @@ module HTTP
       if link.present?
         @response = link.click
         update_instance_variables
+        true
       end
     end
 
@@ -66,6 +67,7 @@ module HTTP
       links.each do |link|
         return link if yield link
       end
+      nil
     end
 
     def update_instance_variables

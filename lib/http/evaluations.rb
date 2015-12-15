@@ -25,8 +25,7 @@ module HTTP
       set 'instructorName', mit_class.instructor
       submit
 
-      click_link { |l| l.href.include?('subjectEvaluationReport.htm') }
-      extract_evaluations
+      extract_evaluations if click_link { |l| l.href.include?('subjectEvaluationReport.htm') }
     end
 
     private
