@@ -1,4 +1,6 @@
 class Location < ActiveRecord::Base
+  include Concerns::SafeJson
+
   has_many :sections
   has_many :classes, source: :mit_class, through: :sections
 

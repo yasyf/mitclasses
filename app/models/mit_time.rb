@@ -1,4 +1,6 @@
 class MitTime < ActiveRecord::Base
+  include Concerns::SafeJson
+
   has_and_belongs_to_many :sections
   has_many :mit_classes, through: :sections
 
@@ -7,6 +9,14 @@ class MitTime < ActiveRecord::Base
   validates :day, presence: true, uniqueness: { scope: [:start, :finish] }
 
   enum day: [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
+
+  def as_json(opts = {})
+    json = super(opts)
+    %w(start finish).each do |a|
+      json[a] = json[a].localtime.strftime('%I:%M %p') if json[a].present?
+    end
+    json
+  end
 
   def self.char_to_day(char)
     %w(M T W R F S X).index(char)

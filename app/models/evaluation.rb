@@ -1,4 +1,6 @@
 class Evaluation < ActiveRecord::Base
+  include Concerns::SafeJson
+
   belongs_to :mit_class
   has_one :instructor, through: :mit_class
   has_one :semester, through: :mit_class

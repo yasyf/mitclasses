@@ -41,9 +41,7 @@ module Groups
       { classes: @classes.map(&:to_h), op: op }.with_indifferent_access
     end
 
-    def to_json
-      to_h.to_json
-    end
+    alias_method :as_json, :to_h
 
     def op
       self.class.name.demodulize.downcase

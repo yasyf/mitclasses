@@ -1,4 +1,6 @@
 class Course < ActiveRecord::Base
+  include Concerns::SafeJson
+
   has_many :classes, class_name: 'MitClass'
 
   validates :number, presence: true, uniqueness: true

@@ -1,4 +1,6 @@
 class Section < ActiveRecord::Base
+  include Concerns::SafeJson
+
   REGEX = /([A-Z]{1,5})(?: EVE \()?[\s]?([0-9]{0,2})[:\.]?([0-9]{0,2})-?([0-9]{0,2})[:\.]?([0-9]{0,2}) ?([A-Z]{2})?\)?/
   BASE_TIME = Time.new 0, 1, 1
 
@@ -53,6 +55,10 @@ class Section < ActiveRecord::Base
 
   def conflicts?(other_sections)
     conflicts_with_sections? Array.wrap(other_sections)
+  end
+
+  def as_json(opts = {})
+    super opts.reverse_merge(methods: [:location, :times])
   end
 
   private

@@ -1,4 +1,6 @@
 class MitClass < ActiveRecord::Base
+  include Concerns::SafeJson
+
   REGEX = /((([A-Z]{2,3})|(([1][0-2,4-8]|[2][0-2,4]|[1-9])[AWFHLM]?))\.(([S]?[0-9]{2,4}[AJ]?)|(UA[TR])))/
 
   belongs_to :semester
@@ -32,6 +34,8 @@ class MitClass < ActiveRecord::Base
     Thread.new { set_site! }
     Thread.new { Evaluation.load! self }
     Thread.new { Textbook.load! self }
+
+    self
   end
 
   def units
@@ -75,6 +79,19 @@ class MitClass < ActiveRecord::Base
   def lmod_uri
     uuid = "/course/#{course}/#{semester.to_s(stellar: true)}/#{number}"
     URI("https://learning-modules.mit.edu/class/index.html?uuid=#{uuid}")
+  end
+
+  def as_json(options = {})
+    json = super options.reverse_merge(
+      methods: [:instructor, :course, :semester, :sections, :textbooks, :evaluation]
+    )
+    json.merge(
+      total_units: total_units,
+      stellar: stellar_uri.to_s,
+      learning_modules: lmod_uri.to_s,
+      prereq_string: prereqs.to_s,
+      coreq_string: coreqs.to_s,
+    )
   end
 
   private

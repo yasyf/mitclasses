@@ -1,4 +1,6 @@
 class Textbook < ActiveRecord::Base
+  include Concerns::SafeJson
+
   belongs_to :mit_class
 
   def self.load!(mit_class)

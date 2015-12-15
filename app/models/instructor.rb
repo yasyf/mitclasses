@@ -1,4 +1,6 @@
 class Instructor < ActiveRecord::Base
+  include Concerns::SafeJson
+
   has_many :classes, class_name: 'MitClass'
 
   validates :name, presence: true, uniqueness: true
