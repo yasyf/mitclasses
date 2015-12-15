@@ -24,6 +24,7 @@ class Course < ActiveRecord::Base
     end.compact.each do |raw_class, mit_class|
       # defer processing until all classes are created
       mit_class.populate! raw_class
+      Rails.logger.info "Populated #{mit_class.number}"
     end
     raw_classes.each do |raw_class|
       next unless id = raw_class['section-of']

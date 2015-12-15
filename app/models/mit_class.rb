@@ -18,7 +18,7 @@ class MitClass < ActiveRecord::Base
   validates :semester, presence: true
   validates :number, presence: true, uniqueness: { scope: [:semester] }
 
-  def populate!(raw = nil)
+  def populate!(raw = nil, force_update: false)
     raw ||= raw_data
 
     update short_name: raw['shortLabel'], description: raw['description'], name: raw['label']
@@ -32,9 +32,9 @@ class MitClass < ActiveRecord::Base
     save!
 
     threads = []
-    threads << Thread.new { set_site! }
-    threads << Thread.new { Evaluation.load! self }
-    threads << Thread.new { Textbook.load! self }
+    threads << Thread.new { set_site! } if force_update || !site.present?
+    threads << Thread.new { Evaluation.load! self } if force_update || !evaluation.present?
+    threads << Thread.new { Textbook.load! self } if force_update || !textbooks.present?
     threads.each { |t| t.join }
 
     self
