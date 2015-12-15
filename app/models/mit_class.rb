@@ -31,9 +31,11 @@ class MitClass < ActiveRecord::Base
     self.instructor = Instructor.where(name: raw['in-charge']).first_or_create! if raw['in-charge'].present?
     save!
 
-    Thread.new { set_site! }
-    Thread.new { Evaluation.load! self }
-    Thread.new { Textbook.load! self }
+    threads = []
+    threads << Thread.new { set_site! }
+    threads << Thread.new { Evaluation.load! self }
+    threads << Thread.new { Textbook.load! self }
+    threads.each { |t| t.join }
 
     self
   end
