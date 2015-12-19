@@ -23,6 +23,8 @@ module HTTP
     def check_head(l)
       response = HTTParty.head(l)
       BAD_DOMAINS.include?(response.request.last_uri.host) || response.code != 200
+    rescue HTTParty::Error
+      true
     end
 
     def verify_link(l, mit_class)
@@ -32,6 +34,8 @@ module HTTP
         return false if BAD_DOMAINS.include?(URI(meta['content'].split('=').last).host)
       end
       body.include? mit_class.number
+    rescue HTTParty::Error
+      false
     end
   end
 end
