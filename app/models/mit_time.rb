@@ -22,13 +22,14 @@ class MitTime < ActiveRecord::Base
     %w(M T W R F S X).index(char)
   end
 
-  # true if all t ∈ other_times contained in self
+  # true if any t ∈ other_times contained in self
   def conflicts?(other_times)
-    other_times.reject { |ot| contains? ot }.empty?
+    other_times.any? { |ot| contains? ot }
   end
 
   def contains?(other_time)
-    (other_time.finish > start && other_time.finish < finish) ||
-     (other_time.start > start && other_time.start < finish)
+    return false unless other_time.day == day
+    (other_time.finish >= start && other_time.finish <= finish) ||
+     (other_time.start >= start && other_time.start <= finish)
   end
 end
