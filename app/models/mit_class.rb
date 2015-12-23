@@ -33,7 +33,10 @@ class MitClass < ActiveRecord::Base
         parsed = self.class.parse_class_group(raw[req])
         send "#{req}=", parsed.simplify.to_h if parsed.present?
       end
+
       self.units = raw['units'].split('-').map(&:to_i)
+      self.units = nil if self.units.sum <= 0
+
       self.instructor = Instructor.where(name: raw['in-charge']).first_or_create!
       self.offered = true
     end
