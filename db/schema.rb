@@ -53,20 +53,21 @@ ActiveRecord::Schema.define(version: 20151130095215) do
 
   create_table "mit_classes", force: :cascade do |t|
     t.string   "name"
-    t.string   "number",        null: false
+    t.string   "number",                                  null: false
     t.text     "description"
     t.string   "short_name"
-    t.integer  "semester_id",   null: false
-    t.integer  "course_id",     null: false
+    t.integer  "semester_id",                             null: false
+    t.integer  "course_id",                               null: false
     t.integer  "instructor_id"
     t.json     "prereqs"
     t.json     "coreqs"
-    t.string   "units",                      array: true
+    t.string   "units",         default: ["4", "4", "4"], null: false, array: true
     t.string   "hass"
     t.string   "ci"
     t.string   "site"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.boolean  "offered",       default: true,            null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
   end
 
   add_index "mit_classes", ["course_id"], name: "index_mit_classes_on_course_id", using: :btree

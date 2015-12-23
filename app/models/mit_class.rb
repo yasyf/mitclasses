@@ -7,9 +7,9 @@ class MitClass < ActiveRecord::Base
   belongs_to :course
   belongs_to :instructor
 
-  has_many :sections
-  has_many :textbooks
-  has_one :evaluation
+  has_many :sections, dependent: :destroy
+  has_many :textbooks, dependent: :destroy
+  has_one :evaluation, dependent: :destroy
 
   has_and_belongs_to_many :schedules
 
@@ -20,15 +20,23 @@ class MitClass < ActiveRecord::Base
 
   def populate!(raw = nil, force_update: false)
     raw ||= raw_data
+    force_update |= !offered
 
-    update short_name: raw['shortLabel'], description: raw['description'], name: raw['label']
-    update hass: raw['hass_attribute'], ci: raw['comm_req_attribute']
-    %w(prereqs coreqs).each do |req|
-      parsed = self.class.parse_class_group(raw[req])
-      send "#{req}=", parsed.simplify.to_h if parsed.present?
+    if raw.blank?
+      Rails.logger.warn("No data found for #{number}!")
+      self.offered = false
+    else
+      update short_name: raw['shortLabel'], description: raw['description'], name: raw['label']
+      update hass: raw['hass_attribute'], ci: raw['comm_req_attribute']
+      %w(prereqs coreqs).each do |req|
+        parsed = self.class.parse_class_group(raw[req])
+        send "#{req}=", parsed.simplify.to_h if parsed.present?
+      end
+      self.units = raw['units'].split('-').map(&:to_i)
+      self.instructor = Instructor.where(name: raw['in-charge']).first_or_create!
+      self.offered = true
     end
-    self.units = raw['units'].split('-').map(&:to_i) if raw['units'].present?
-    self.instructor = Instructor.where(name: raw['in-charge']).first_or_create! if raw['in-charge'].present?
+
     save!
 
     threads = []
@@ -70,7 +78,7 @@ class MitClass < ActiveRecord::Base
   end
 
   def site_uri
-    URI(site)
+    URI(site) if site.present?
   end
 
   def stellar_uri

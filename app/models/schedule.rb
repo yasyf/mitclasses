@@ -50,6 +50,22 @@ class Schedule < ActiveRecord::Base
     end.to_h
   end
 
+  def self.from_course_road(kerberos)
+    offset = HTTP::Year.new.year(kerberos) - 1
+
+    classes = HTTP::CourseRoad.new.hash(kerberos).map do |c|
+      next if c['classterm'] == 0 || c['year'].to_i == 0
+
+      year = Semester.current.year - offset + (c['classterm'] / 4)
+      season = [:summer, :fall, :iap, :spring][c['classterm'] % 4]
+
+      semester = Semester.where(year: year, season: Semester.seasons[season]).first_or_create!
+      semester.mit_class!(c['subject_id'])
+    end.compact
+
+    self.create! mit_classes: classes
+  end
+
   private
 
   def grouped_classes

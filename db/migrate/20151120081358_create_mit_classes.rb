@@ -10,10 +10,11 @@ class CreateMitClasses < ActiveRecord::Migration
       t.belongs_to :instructor, index: true, foreign_key: true
       t.json :prereqs
       t.json :coreqs
-      t.string :units, array: true
+      t.string :units, array: true, null: false, default: [4, 4, 4]
       t.string :hass
       t.string :ci
       t.string :site
+      t.boolean :offered, null: false, default: true
 
       t.index [:number, :semester_id], unique: true
 

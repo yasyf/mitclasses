@@ -6,7 +6,7 @@ class Semester < ActiveRecord::Base
   validates :year, presence: true, numericality: { greater_than: 2000, less_than: 3000 }
   validates :season, presence: true, uniqueness: { scope: :year }
 
-  enum season: [:fall, :spring, :iap]
+  enum season: [:fall, :spring, :iap, :summer]
 
   def mit_class(number)
     class_scope(number).first!
@@ -54,6 +54,11 @@ class Semester < ActiveRecord::Base
     end.first_or_create!
   end
 
+  def self.season_in_year(season, year)
+    year += 1 if season == :fall
+    where(season: seasons[season], year: year).first_or_create!
+  end
+
   def as_json(opts = {})
     super(opts).merge(id: to_s)
   end
@@ -65,7 +70,9 @@ class Semester < ActiveRecord::Base
     when :spring
       'SP'
     when :iap
-      'IAP'
+      stellar ? 'IA' : 'JA'
+    when :summer
+      'SU'
     end
     stellar ? (prefix.downcase + year.to_s.last(2)) : (year.to_s + prefix)
   end
@@ -76,8 +83,10 @@ class Semester < ActiveRecord::Base
       :fall
     when 'SP'
       :spring
-    when 'IAP'
+    when 'IAP', 'IA', 'JA'
       :iap
+    when 'SM', 'SU'
+      :summer
     end
     where(season: seasons[season], year: semester.first(4).to_i).first!
   end
