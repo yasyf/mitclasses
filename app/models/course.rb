@@ -5,6 +5,8 @@ class Course < ActiveRecord::Base
 
   validates :number, presence: true, uniqueness: true
 
+  scope :sorted, -> { order(:number) }
+
   def to_s
     number
   end
