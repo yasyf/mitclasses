@@ -28,6 +28,7 @@ class MitClass < ActiveRecord::Base
     else
       update short_name: raw['shortLabel'], description: raw['description'], name: raw['label']
       update hass: raw['hass_attribute'], ci: raw['comm_req_attribute']
+      update equivalents: raw['equivalent_subjects'].flat_map { |s| self.class.translate_class_string(s) }.compact
       %w(prereqs coreqs).each do |req|
         parsed = self.class.parse_class_group(raw[req])
         send "#{req}=", parsed.simplify.to_h if parsed.present?

@@ -31,7 +31,6 @@ class Schedule < ActiveRecord::Base
     def feature_vector
       FEATURE_METHODS.flat_map do |m, params|
         if params.present?
-          puts m.to_s, params.to_s
           params.flat_map { |p| send(m, p) }
         else
           send(m)

@@ -11,13 +11,15 @@ module Ml
 
       def suggestions(schedule_semester)
         cluster = @clusterer.clusters[eval(schedule_semester)]
+
         all_classes = schedule_semester.schedule.classes
         all_class_set = Set.new all_classes.map(&:number)
+        all_class_set |= all_classes.flat_map(&:equivalents)
+
         Enumerator.new do |yielder|
           cluster.data_items.sort_by { |i| distance(i, schedule_semester) }.each do |item|
             next if item.last == schedule_semester.id
             ::Schedule.parse(item.last).classes.each do |c|
-              # TODO: filter out classes which are equivalent to completed
               next if all_class_set.include?(c.number)
               next if schedule_semester.conflicts? c
               # TODO: only look at previous classes in schedule for requisites
