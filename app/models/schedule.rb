@@ -1,7 +1,13 @@
 class Schedule < ActiveRecord::Base
-  FEATURE_METHODS = %w(classes_per_course semester_booleans unit_count)
+  FEATURE_METHODS = {
+    classes_per_course: [],
+    semester_booleans: [],
+    class_count: [],
+    unit_count: [{ mode: :deviation }, { mode: :average }, { mode: :total }]
+  }
 
   has_and_belongs_to_many :mit_classes
+  belongs_to :student
 
   alias_method :classes, :mit_classes
 
@@ -22,12 +28,15 @@ class Schedule < ActiveRecord::Base
       @semester.send(method)
     end
 
-    def features
-      [semester.to_s, FEATURE_METHODS.map { |m| [m, send(m)] }.to_h]
-    end
-
     def feature_vector
-      FEATURE_METHODS.flat_map { |m| send(m) } + [id]
+      FEATURE_METHODS.flat_map do |m, params|
+        if params.present?
+          puts m.to_s, params.to_s
+          params.flat_map { |p| send(m, p) }
+        else
+          send(m)
+        end
+      end + [id]
     end
 
     def conflicts
@@ -59,10 +68,6 @@ class Schedule < ActiveRecord::Base
     semester_hash[semester]
   end
 
-  def features
-    semesters.map { |s| [s.to_s, s.features] }.to_h
-  end
-
   def feature_vectors
     semesters.map(&:feature_vector)
   end
@@ -72,10 +77,15 @@ class Schedule < ActiveRecord::Base
     Schedule.find(id).semester Semester.parse(semester)
   end
 
-  def self.from_course_road(kerberos)
-    offset = HTTP::Year.new.year(kerberos) - 1
+  def self.for_student(kerberos)
+    student = Student.where(kerberos: kerberos).first_or_create!
+    where(student: student).first || from_course_road(student)
+  end
 
-    classes = HTTP::CourseRoad.new.hash(kerberos).map do |c|
+  def self.from_course_road(student)
+    offset = HTTP::Year.new.year(student.kerberos) - 1
+
+    classes = HTTP::CourseRoad.new.hash(student.kerberos).map do |c|
       next if c['classterm'] == 0 || c['year'].to_i == 0
 
       year = Semester.current.year - offset + (c['classterm'] / 4)
@@ -85,7 +95,7 @@ class Schedule < ActiveRecord::Base
       semester.mit_class!(c['subject_id'])
     end.compact
 
-    self.create! mit_classes: classes
+    classes.present? ? self.create!(mit_classes: classes, student: student) : nil
   end
 
   private

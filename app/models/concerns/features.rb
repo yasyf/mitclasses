@@ -16,10 +16,14 @@ module Concerns
       end
     end
 
-    def unit_count(mode: :devation)
+    def class_count
+      classes.length
+    end
+
+    def unit_count(mode: :deviation)
       count = classes.map(&:total_units).map(&:to_f).sum
       case mode
-      when :devation
+      when :deviation
         (UNITS_PER_SEMESTER - count).abs / count
       when :average
         count / classes.length

@@ -96,9 +96,12 @@ ActiveRecord::Schema.define(version: 20151130095215) do
   end
 
   create_table "schedules", force: :cascade do |t|
+    t.integer  "student_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_index "schedules", ["student_id"], name: "index_schedules_on_student_id", using: :btree
 
   create_table "sections", force: :cascade do |t|
     t.string   "number",       null: false
@@ -122,6 +125,12 @@ ActiveRecord::Schema.define(version: 20151130095215) do
 
   add_index "semesters", ["season", "year"], name: "index_semesters_on_season_and_year", unique: true, using: :btree
 
+  create_table "students", force: :cascade do |t|
+    t.string   "kerberos",   null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "textbooks", force: :cascade do |t|
     t.integer  "mit_class_id"
     t.string   "title",                                 null: false
@@ -142,6 +151,7 @@ ActiveRecord::Schema.define(version: 20151130095215) do
   add_foreign_key "mit_classes", "courses"
   add_foreign_key "mit_classes", "instructors"
   add_foreign_key "mit_classes", "semesters"
+  add_foreign_key "schedules", "students"
   add_foreign_key "sections", "locations"
   add_foreign_key "sections", "mit_classes"
   add_foreign_key "textbooks", "mit_classes"

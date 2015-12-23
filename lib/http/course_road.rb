@@ -11,7 +11,9 @@ module HTTP
     end
 
     def hash(hash)
-      JSON.parse(ajax(hash).body)[CLASSES_KEY]
+      JSON.parse(ajax(hash).body)[CLASSES_KEY] || []
+    rescue
+      []
     end
 
     private
