@@ -10,7 +10,7 @@ module Ml
       def suggestions(schedule_semester)
         cluster = eval(schedule_semester)
 
-        all_classes = schedule_semester.schedule.classes
+        all_classes = schedule_semester.schedule.classes.includes(:semester)
         all_class_set = Set.new all_classes.map(&:number)
         all_class_set |= all_classes.flat_map(&:equivalents)
         completed_classes = all_classes.select { |c| c.semester < schedule_semester.semester }

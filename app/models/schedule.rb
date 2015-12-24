@@ -8,6 +8,8 @@ class Schedule < ActiveRecord::Base
     average_class_number_per_course: []
   }
 
+  FEATURE_INLCUDES = [:semester, { sections: :times }, :course]
+
   has_and_belongs_to_many :mit_classes
   belongs_to :student
 
@@ -28,6 +30,10 @@ class Schedule < ActiveRecord::Base
 
     def method_missing(method)
       @semester.send(method)
+    end
+
+    def suggestions
+      @schedule.class.clustering.suggestions self
     end
 
     def feature_vector
@@ -102,11 +108,15 @@ class Schedule < ActiveRecord::Base
 
   private
 
+  def self.clustering
+    @clustering ||= Ml::Clustering::Schedule.new all.includes(:student, mit_classes: FEATURE_INLCUDES)
+  end
+
   def semester_hash
     @semester_hash ||= grouped_classes.map { |s, c| [s, ScheduleSemester.new(c, s, self)] }.to_h
   end
 
   def grouped_classes
-    @grouped_classes ||= classes.includes(:semester, sections: :times).group_by(&:semester)
+    @grouped_classes ||= classes.includes(FEATURE_INLCUDES).group_by(&:semester)
   end
 end
