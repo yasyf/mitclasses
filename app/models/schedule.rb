@@ -3,7 +3,9 @@ class Schedule < ActiveRecord::Base
     classes_per_course: [],
     semester_booleans: [],
     class_count: [],
-    unit_count: [{ mode: :deviation }, { mode: :average }, { mode: :total }]
+    unit_count: [{ mode: :deviation }, { mode: :average }, { mode: :total }],
+    predominant_major: [],
+    average_class_number_per_course: []
   }
 
   has_and_belongs_to_many :mit_classes

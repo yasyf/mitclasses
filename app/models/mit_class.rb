@@ -60,6 +60,10 @@ class MitClass < ActiveRecord::Base
     units.sum
   end
 
+  def class_number
+    number.split('.').last
+  end
+
   %w(prereqs coreqs).each do |req|
     define_method req do
       Groups::Operation.load(self[req]) if self[req].present?

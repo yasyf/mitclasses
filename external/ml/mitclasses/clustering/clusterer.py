@@ -24,6 +24,7 @@ class Clusterer(object):
 
   def fit(self):
     assert self.backend is not None
+    # TODO: PCA or some other dimensionality reduction
     self.backend.fit(self.feature_vectors)
 
   def predict(self, X):
