@@ -50,9 +50,9 @@ class Server(object):
   def kmeans_backend(self):
     return KMeans(n_clusters=self.clusterer.num_clusters)
 
-  def start(self):
+  def start(self, backend=None):
+    self.clusterer.backend = backend or self.kmeans_backend()
     self.seed_from_stdin()
-    self.clusterer.backend = self.affinity_propogation_backend()
     self.clusterer.fit()
 
     self.send('trained model')
@@ -64,5 +64,4 @@ class Server(object):
       feature_vectors, _ = self.read_from_stdin()
       feature_vector = feature_vectors[0].reshape(1, -1)
       cluster = self.clusterer.predict(feature_vector)
-      # TODO: sort cluster elements by euclidian distance to center before returning
       self.send(cluster.tolist(), 'cluster')
