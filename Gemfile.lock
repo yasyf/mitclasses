@@ -36,7 +36,6 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    ai4r (1.13)
     arel (6.0.3)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
@@ -205,7 +204,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  ai4r
   byebug
   coffee-rails (~> 4.1.0)
   dotenv-rails

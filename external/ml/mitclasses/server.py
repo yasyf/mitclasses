@@ -1,31 +1,48 @@
-import json
+import json, socket
 from models.schedule import Schedule
 from clustering.clusterer import Clusterer
 from sklearn.cluster import KMeans, AffinityPropagation
 
 class Server(object):
-  def __init__(self, num_features):
-    self.input = []
+  SOCKET_BUFFSIZE = 4096
+
+  def __init__(self, socket_fd, num_features):
+    self.socket = socket.fromfd(socket_fd, socket.AF_UNIX, socket.SOCK_DGRAM)
     self.clusterer = Clusterer(Schedule.empty_vector(num_features), Schedule.empty_label())
 
   def read(self):
+    try:
+      return json.loads(self.socket.recv(self.SOCKET_BUFFSIZE))
+    except ValueError:
+      self.send('decode failed', 'error')
+      return self.read()
+
+  def send(self, data, type_='info'):
+    self.socket.send(json.dumps({'type': type_, 'data': data}))
+
+  def close(self):
+    self.socket.close()
+
+  def seed_from_stdin(self):
     while True:
-      try:
-        self.input.append(raw_input())
-      except EOFError:
+      message = self.read()
+      if message['type'] == 'features':
+        feature_vectors, labels = Schedule.parse_raw(message['data'])
+        self.clusterer.update(feature_vectors, labels)
+      elif message['type'] == 'eof':
         break
 
-  def parse(self):
-    parsed_input = json.loads('\n'.join(self.input))
-    self.input = []
-    return Schedule.parse_raw(parsed_input)
+  def read_from_stdin(self):
+    while True:
+      message = self.read()
+      if message['type'] == 'features':
+        return Schedule.parse_raw(message['data'])
+      elif message['type'] == 'quit':
+        raise StopIteration
 
-  def parse_from_stdin(self):
-    self.read()
-    return self.parse()
-
-  def parse_from_http(self):
-    return Schedule.fetch_all(wrap=False)
+  def seed_from_http(self):
+    feature_vectors, labels = Schedule.fetch_all(wrap=False)
+    self.clusterer.update(feature_vectors, labels)
 
   def affinity_propogation_backend(self):
     return AffinityPropagation()
@@ -34,15 +51,18 @@ class Server(object):
     return KMeans(n_clusters=self.clusterer.num_clusters)
 
   def start(self):
-    feature_vectors, labels = self.parse_from_stdin()
-    self.clusterer.update(feature_vectors, labels)
+    self.seed_from_stdin()
     self.clusterer.backend = self.affinity_propogation_backend()
     self.clusterer.fit()
+
+    self.send('trained model')
 
     self.predict_loop()
 
   def predict_loop(self):
     while True:
-      feature_vectors, _ = self.parse_from_stdin()
+      feature_vectors, _ = self.read_from_stdin()
       feature_vector = feature_vectors[0].reshape(1, -1)
-      print(json.dumps({'cluster': self.clusterer.predict(feature_vector).tolist()}))
+      cluster = self.clusterer.predict(feature_vector)
+      # TODO: sort cluster elements by euclidian distance to center before returning
+      self.send(cluster.tolist(), 'cluster')

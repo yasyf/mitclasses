@@ -21,11 +21,11 @@ class Schedule(object):
     if wrap:
       return map(cls, raw['schedules'])
     else:
-      return cls.parse_raw(raw)
+      return cls.parse_raw(raw['schedules'])
 
   @classmethod
-  def parse_raw(cls, raw):
-    array = np.array(raw['schedules'])
+  def parse_raw(cls, schedules):
+    array = np.array(schedules)
     return array[:,:-1].astype(cls.DATA_TYPE), array[:,-1].reshape(-1, 1)
 
   @classmethod

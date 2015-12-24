@@ -24,8 +24,7 @@ class Clusterer(object):
 
   def fit(self):
     assert self.backend is not None
-
-    self.backend.fit(self.feature_vectors, self.labels)
+    self.backend.fit(self.feature_vectors)
 
   def predict(self, X):
     assert self.backend is not None
