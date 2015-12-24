@@ -6,6 +6,10 @@ class Clusterer(object):
     self.labels = labels
     self._clusterer = None
 
+  def update(self, feature_vectors, labels):
+    self.feature_vectors = np.concatenate((self.feature_vectors, feature_vectors))
+    self.labels = np.concatenate((self.labels, labels))
+
   @property
   def backend(self):
     return self._backend
