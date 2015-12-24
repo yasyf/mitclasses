@@ -4,8 +4,8 @@ module Ml
   module Clustering
     class Clusterer
       SOCKET_PROTOCOL = 0
-      SOCKET_BUFFSIZE = 4096
-      SOCKET_MESSAGES_IN_FLIGHT = 5
+      SOCKET_BUFFSIZE = 65536
+      SOCKET_MESSAGES_IN_FLIGHT = 100
       PYTHON_BINARY = %w(python external/ml/mitclasses/__main__.py)
 
       def initialize(num_features)
@@ -17,7 +17,6 @@ module Ml
       def build(feature_vectors)
         feature_vectors.in_groups_of(SOCKET_MESSAGES_IN_FLIGHT, false) do |group|
           send_message group, :features
-          sleep 0.1
         end
         send_message nil, :eof
         receive
@@ -37,6 +36,10 @@ module Ml
 
       def send_message(data, type = 'info')
         @ruby_socket.send(JSON.dump(type: type, data: data), SOCKET_PROTOCOL)
+      rescue Errno::ENOBUFS => e
+        Rails.logger.warn e
+        sleep 0.1
+        retry
       end
 
       def receive
@@ -45,7 +48,11 @@ module Ml
 
       def setup_sockets
        @ruby_socket, @python_socket = Socket.pair :UNIX, :DGRAM, SOCKET_PROTOCOL
-       @ruby_socket.sync = true
+
+       [@ruby_socket, @python_socket].each do |socket|
+         socket.setsockopt :SOCKET, :SO_RCVBUF, SOCKET_BUFFSIZE
+         socket.setsockopt :SOCKET, :SO_SNDBUF, SOCKET_BUFFSIZE
+       end
       end
 
       def spawn_process

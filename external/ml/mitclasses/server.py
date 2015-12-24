@@ -4,7 +4,7 @@ from clustering.clusterer import Clusterer
 from sklearn.cluster import KMeans, AffinityPropagation
 
 class Server(object):
-  SOCKET_BUFFSIZE = 4096
+  SOCKET_BUFFSIZE = 65536
 
   def __init__(self, socket_fd, num_features):
     self.socket = socket.fromfd(socket_fd, socket.AF_UNIX, socket.SOCK_DGRAM)

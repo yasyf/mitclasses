@@ -13,16 +13,17 @@ module Ml
         all_classes = schedule_semester.schedule.classes
         all_class_set = Set.new all_classes.map(&:number)
         all_class_set |= all_classes.flat_map(&:equivalents)
+        completed_classes = all_classes.select { |c| c.semester < schedule_semester.semester }
 
         Enumerator.new do |yielder|
           cluster.each do |id|
             next if id == schedule_semester.id
             ::Schedule.parse(id).classes.each do |c|
+              next unless c.offered?
               next if all_class_set.include?(c.number)
               next if schedule_semester.conflicts? c
-              # TODO: only look at previous classes in schedule for requisites
-              next unless c.prereqs.blank? || c.prereqs.satisfied?(all_classes)
-              next unless c.coreqs.blank? || c.coreqs.satisfied?(all_classes)
+              next unless c.prereqs.blank? || c.prereqs.satisfied?(completed_classes)
+              next unless c.coreqs.blank? || c.coreqs.satisfied?(completed_classes)
 
               all_class_set.add c.number
               yielder.yield c

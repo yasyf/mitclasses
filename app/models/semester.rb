@@ -1,5 +1,6 @@
 class Semester < ActiveRecord::Base
   include Concerns::SafeJson
+  include Comparable
 
   has_many :classes, class_name: 'MitClass'
 
@@ -75,6 +76,12 @@ class Semester < ActiveRecord::Base
       'SU'
     end
     stellar ? (prefix.downcase + year.to_s.last(2)) : (year.to_s + prefix)
+  end
+
+  def <=>(other)
+    return nil unless other.is_a?(Semester)
+    return year <=> other.year unless year == other.year
+    self.class.seasons[season] <=> other.class.seasons[other.season]
   end
 
   def self.parse(semester)

@@ -49,7 +49,8 @@ class Schedule < ActiveRecord::Base
     end
 
     def id
-      "#{self.class.parent.name}.#{@schedule.id}.#{semester.to_s}"
+      prefix = self.schedule.student.try(:kerberos) || Student::ANONYMOUS_KERBEROS
+      "#{prefix}.#{@schedule.id}.#{semester.to_s}"
     end
   end
 
