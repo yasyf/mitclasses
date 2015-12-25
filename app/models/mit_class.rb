@@ -41,7 +41,7 @@ class MitClass < ActiveRecord::Base
       self.offered = true
     end
 
-    self.units = [4, 4, 4] unless self.units.present?
+    self.units = [4, 4, 4] unless self[:units].present?
 
     save!
 
