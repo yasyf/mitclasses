@@ -4,12 +4,17 @@ module Concerns
 
     extend ActiveSupport::Concern
 
+    class_methods do
+      def sorted_courses
+        @sorted_courses ||= Course.sorted
+      end
+    end
+
     def semester_booleans
       Semester.seasons.keys.map { |s| (s == semester.season) ? 1 : 0 }
     end
 
     def classes_per_course(percent: true)
-      grouped_classes = classes.group_by(&:course)
       self.class.sorted_courses.map do |course|
         count = (grouped_classes[course].try(:count) || 0).to_f
         percent ? (count / classes.count) : count
@@ -21,12 +26,11 @@ module Concerns
     end
 
     def predominant_major
-      grouped_classes = classes.group_by(&:course)
-      grouped_classes.keys.max_by { |c| grouped_classes[c].count }.number.to_i
+      predominant = grouped_classes.keys.max_by { |c| grouped_classes[c].count }
+      self.class.sorted_courses.map { |c| (c == predominant) ? 1 : 0 }
     end
 
     def average_class_number_per_course
-      grouped_classes = classes.group_by(&:course)
       self.class.sorted_courses.map do |course|
         if classes = grouped_classes[course]
           classes.lazy.map(&:class_number).map { |cn| "0.#{cn}" }.map(&:to_f).sum / classes.count
@@ -48,10 +52,10 @@ module Concerns
       end
     end
 
-    class_methods do
-      def sorted_courses
-        @sorted_courses ||= Course.sorted
-      end
+    private
+
+    def grouped_classes
+      @grouped_classes ||= classes.group_by(&:course)
     end
   end
 end
