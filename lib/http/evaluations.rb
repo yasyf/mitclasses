@@ -12,8 +12,7 @@ module HTTP
       "Average hours you spent per week on this subject in the classroom" => "classroom_hours",
       "Average hours you spent per week on this subject outside of the classroom" => "home_hours",
       "Lab hours" => "classroom_hours",
-      "Prep hours" => "home_hours",
-      "Average hours you spent per week on this subject, both in and outside the classroom" => 'hours'
+      "Prep hours" => "home_hours"
     }
 
     domain 'edu-apps.mit.edu'

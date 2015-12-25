@@ -2,7 +2,7 @@ class Schedule < ActiveRecord::Base
   FEATURE_METHODS = {
     classes_per_course: [],
     semester_booleans: [],
-    class_count: [],
+    class_count: [{ mode: :deviation }],
     unit_count: [{ mode: :deviation }, { mode: :average }, { mode: :total }],
     predominant_major: [],
     average_class_number_per_course: []

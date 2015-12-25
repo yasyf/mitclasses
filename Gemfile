@@ -59,3 +59,5 @@ gem 'mechanize'
 gem 'vacuum'
 gem 'stoplight', '~> 1.1'
 gem 'net-ssh'
+gem 'sidekiq'
+gem 'sinatra', :require => nil

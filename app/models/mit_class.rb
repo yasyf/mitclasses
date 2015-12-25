@@ -45,11 +45,9 @@ class MitClass < ActiveRecord::Base
 
     save!
 
-    threads = []
-    threads << Thread.new { set_site! } if force_update || !site.present?
-    threads << Thread.new { Evaluation.load! self } if force_update || !evaluation.present?
-    threads << Thread.new { Textbook.load! self } if force_update || !textbooks.present?
-    threads.each { |t| t.join } if Rails.env.production?
+    MitClassWorkers::SiteWorker.perform_async(self.id) if force_update || !site.present?
+    MitClassWorkers::EvaluationWorker.perform_async(self.id) if force_update || !evaluation.present?
+    MitClassWorkers::TextbookWorker.perform_async(self.id) if force_update || !textbooks.present?
 
     self
   end

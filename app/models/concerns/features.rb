@@ -1,6 +1,7 @@
 module Concerns
   module Features
-    UNITS_PER_SEMESTER = 40
+    CLASSES_PER_SEMESTER = 4.0
+    UNITS_PER_SEMESTER = 48.0
 
     extend ActiveSupport::Concern
 
@@ -21,8 +22,14 @@ module Concerns
       end
     end
 
-    def class_count
-      classes.length
+    def class_count(mode: :deviation)
+      count = classes.count.to_f
+      case mode
+      when :deviation
+        (CLASSES_PER_SEMESTER - count).abs / count
+      else
+        count
+      end
     end
 
     def predominant_major
