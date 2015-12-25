@@ -18,7 +18,9 @@ module Ml
         Enumerator.new do |yielder|
           cluster.each do |id|
             next if id == schedule_semester.id
-            ::Schedule.parse(id).classes.each do |c|
+            ::Schedule.parse(id).classes.map(&:number).each do |cn|
+              c = schedule_semester.semester.mit_class!(cn)
+
               next unless c.offered?
               next if all_class_set.include?(c.number)
               next if schedule_semester.conflicts? c
