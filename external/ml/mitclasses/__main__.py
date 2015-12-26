@@ -2,12 +2,12 @@ import sys, os
 from server import Server
 from models.schedule import Schedule
 from clustering.clusterer import Clusterer
-from sklearn.cluster import AffinityPropagation
+from sklearn.cluster import MiniBatchKMeans
 
 def main_loop():
   server = Server(int(sys.argv[1]), int(sys.argv[2]))
   try:
-    server.start(server.affinity_propogation_backend())
+    server.start(server.kmeans_backend)
   except StopIteration:
     pass
   finally:
@@ -16,7 +16,7 @@ def main_loop():
 def manual():
   feature_vectors, labels = Schedule.fetch_all(wrap=False)
   clusterer = Clusterer(feature_vectors, labels)
-  clusterer.backend = AffinityPropagation()
+  clusterer.backend = MiniBatchKMeans(clusterer.num_clusters)
   clusterer.fit()
 
   print labels[0]

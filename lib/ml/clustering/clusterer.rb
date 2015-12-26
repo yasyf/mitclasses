@@ -5,7 +5,7 @@ module ML
     class Clusterer
       SOCKET_PROTOCOL = 0
       SOCKET_BUFFSIZE = 65536
-      SOCKET_MESSAGES_IN_FLIGHT = 100
+      SOCKET_MESSAGES_IN_FLIGHT = 90
       PYTHON_BINARY = %w(python external/ml/mitclasses/__main__.py)
 
       def initialize(num_features)

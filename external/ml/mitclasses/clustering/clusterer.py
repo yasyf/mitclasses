@@ -1,13 +1,16 @@
 import numpy as np
 from scipy.spatial import distance
-from sklearn import preprocessing, decomposition
+from sklearn import preprocessing, decomposition, pipeline, feature_selection
 
 class Clusterer(object):
   def __init__(self, feature_vectors, labels):
     self.feature_vectors = feature_vectors
     self.labels = labels
-    self._preprocesser = preprocessing.StandardScaler()
-    self._processor = decomposition.PCA(whiten=True)
+    self._preprocessor = pipeline.make_pipeline(
+      feature_selection.VarianceThreshold(),
+      preprocessing.StandardScaler(),
+      decomposition.PCA(0.9, whiten=True)
+    )
     self._backend = None
 
   def update(self, feature_vectors, labels):
@@ -26,22 +29,21 @@ class Clusterer(object):
   def num_clusters(self):
     if self.backend and self.backend.cluster_centers_:
       return self.backend.cluster_centers_.shape[0]
-    return int(np.sqrt(self.feature_vectors.shape[0] / 2))
+    return int(np.sqrt(self.feature_vectors.shape[0] / 2.0))
 
-  def process(self, X):
-    return self._processor.transform(self._preprocesser.transform(X))
+  def preprocess(self, X):
+    return self._preprocessor.transform(X)
 
   def fit(self):
     assert self.backend is not None
 
-    self.feature_vectors = self._preprocesser.fit_transform(self.feature_vectors)
-    self.feature_vectors = self._processor.fit_transform(self.feature_vectors)
+    self.feature_vectors = self._preprocessor.fit_transform(self.feature_vectors)
     self.backend.fit(self.feature_vectors)
 
   def predict(self, X_raw):
     assert self.backend is not None
 
-    X = self.process(X_raw)
+    X = self.preprocess(X_raw)
 
     cluster_index = self.backend.predict(X)
     cluster_mask = (self.backend.labels_ == cluster_index)

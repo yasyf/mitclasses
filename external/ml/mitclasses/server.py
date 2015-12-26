@@ -1,7 +1,7 @@
 import json, socket
 from models.schedule import Schedule
 from clustering.clusterer import Clusterer
-from sklearn.cluster import KMeans, AffinityPropagation
+from sklearn.cluster import MiniBatchKMeans, AffinityPropagation
 
 class Server(object):
   SOCKET_BUFFSIZE = 65536
@@ -48,11 +48,11 @@ class Server(object):
     return AffinityPropagation()
 
   def kmeans_backend(self):
-    return KMeans(n_clusters=self.clusterer.num_clusters)
+    return MiniBatchKMeans(n_clusters=self.clusterer.num_clusters)
 
-  def start(self, backend=None):
-    self.clusterer.backend = backend or self.kmeans_backend()
+  def start(self, backend_fn=None):
     self.seed_from_stdin()
+    self.clusterer.backend = backend_fn() or self.kmeans_backend()
     self.clusterer.fit()
 
     self.send('trained model')
