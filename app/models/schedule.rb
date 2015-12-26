@@ -91,7 +91,9 @@ class Schedule < ActiveRecord::Base
   end
 
   def self.from_course_road(student)
-    offset = HTTP::Year.new.year(student.kerberos) - 1
+    student_year = HTTP::Year.new.year(student.kerberos)
+    return nil unless student_year.present?
+    offset = student_year - 1
 
     classes = HTTP::CourseRoad.new.hash(student.kerberos).map do |c|
       next if c['classterm'] == 0 || c['year'].to_i == 0

@@ -2,10 +2,11 @@ module Ssh
   class Blanche
     HOST = 'athena.dialup.mit.edu'
 
-    def initialize(list)
-      @queue = [list]
+    def initialize(lists, opts)
+      @queue = Array.wrap(lists)
       @users = Set.new
       @searched = Set.new
+      @opts = opts
       initialize_ssh
     end
 
@@ -17,9 +18,10 @@ module Ssh
         Rails.logger.info "fetching #{list}"
 
         lists, users = fetch(list)
-        @queue += lists
-        @users |= users
+        @queue += lists.reject { |l| @searched.include?(l) }
+        @users += users.reject { |u| @users.include?(u) }.each { |u| yield u if block_given? }
       end
+      destroy if @opts[:auto_destroy]
     end
 
     def results
@@ -27,20 +29,33 @@ module Ssh
       @users
     end
 
-    private
-
     def destroy
       @ssh.close
     rescue IOError
     end
+
+    private
 
     def initialize_ssh
       @ssh = Net::SSH.start(HOST, ENV['MIT_USERNAME'], password: ENV['MIT_PASSWORD'])
     end
 
     def fetch(list)
-      lists = @ssh.exec!("blanche -l #{list}").split("\n").map { |l| l[5..-1] }
-      users = @ssh.exec!("blanche -u #{list}").split("\n")
+      list_query = @ssh.exec!("blanche -l #{list}")
+      user_query = @ssh.exec!("blanche -u #{list}")
+
+      lists = if list_query.include?('Insufficient permission')
+        []
+      else
+        list_query.split("\n").map { |l| l[5..-1] }
+      end
+
+      users = if user_query.include?('Insufficient permission')
+        []
+      else
+        user_query.split("\n")
+      end
+
       [lists, users]
     end
   end
