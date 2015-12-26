@@ -1,13 +1,11 @@
-module Ssh
-  class Blanche
-    HOST = 'athena.dialup.mit.edu'
-
+module SSH
+  class Blanche < Remote
     def initialize(lists, opts)
       @queue = Array.wrap(lists)
       @users = Set.new
       @searched = Set.new
       @opts = opts
-      initialize_ssh
+      super
     end
 
     def search
@@ -29,16 +27,7 @@ module Ssh
       @users
     end
 
-    def destroy
-      @ssh.close
-    rescue IOError
-    end
-
     private
-
-    def initialize_ssh
-      @ssh = Net::SSH.start(HOST, ENV['MIT_USERNAME'], password: ENV['MIT_PASSWORD'])
-    end
 
     def fetch(list)
       list_query = @ssh.exec!("blanche -l #{list}")

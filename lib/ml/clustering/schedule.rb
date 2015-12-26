@@ -1,4 +1,4 @@
-module Ml
+module ML
   module Clustering
     class Schedule
       def initialize(schedules)
@@ -49,7 +49,7 @@ module Ml
       end
 
       def set_clusterer
-        @clusterer = Ml::Clustering::Clusterer.new(@feature_vectors.first.size - 1)
+        @clusterer = ML::Clustering::Clusterer.new(@feature_vectors.first.size - 1)
         @clusterer.build(@feature_vectors)
       end
     end

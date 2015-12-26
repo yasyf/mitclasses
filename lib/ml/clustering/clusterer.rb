@@ -1,6 +1,6 @@
 require 'socket'
 
-module Ml
+module ML
   module Clustering
     class Clusterer
       SOCKET_PROTOCOL = 0

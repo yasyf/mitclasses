@@ -91,7 +91,7 @@ class Schedule < ActiveRecord::Base
   end
 
   def self.from_course_road(student)
-    student_year = HTTP::Year.new.year(student.kerberos)
+    student_year = SSH::Finger.new(student.kerberos).year
     return nil unless student_year.present?
     offset = student_year - 1
 
@@ -111,7 +111,7 @@ class Schedule < ActiveRecord::Base
   private
 
   def self.clustering
-    @clustering ||= Ml::Clustering::Schedule.new all.includes(:student, mit_classes: FEATURE_INLCUDES)
+    @clustering ||= ML::Clustering::Schedule.new all.includes(:student, mit_classes: FEATURE_INLCUDES)
   end
 
   def semester_hash

@@ -1,5 +1,5 @@
 module HTTP
-  class Year < Scraped
+  class Finger < Scraped
     domain 'web.mit.edu'
     ssl false
 
