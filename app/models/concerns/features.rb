@@ -11,19 +11,35 @@ module Concerns
       end
     end
 
-    def semester_booleans
-      Semester.seasons.keys.map { |s| (s == semester.season) ? 1 : 0 }
+    def feature_vector
+      @feature_vector ||= begin
+        self.class::FEATURE_METHODS.flat_map do |m, params|
+          if params.present?
+            params.flat_map { |p| send(m, p) }
+          else
+            send(m)
+          end
+        end + [id]
+      end
+    end
+
+    def season_count(percent: true)
+      grouped = classes.group_by { |c| c.semester.season }
+      Semester.seasons.keys.sort.map do |season|
+        count = (grouped[season].try(:count) || 0).to_f
+        percent ? (count / classes_count) : count
+     end
     end
 
     def classes_per_course(percent: true)
       self.class.sorted_courses.map do |course|
         count = (grouped_classes[course].try(:count) || 0).to_f
-        percent ? (count / classes.count) : count
+        percent ? (count / classes_count) : count
       end
     end
 
     def class_count(mode: :deviation)
-      count = classes.count.to_f
+      count = classes_count.to_f
       case mode
       when :deviation
         (CLASSES_PER_SEMESTER - count).abs / count
@@ -40,7 +56,7 @@ module Concerns
     def average_class_number_per_course
       self.class.sorted_courses.map do |course|
         if classes = grouped_classes[course]
-          classes.lazy.map(&:class_number).map { |cn| "0.#{cn}" }.map(&:to_f).sum / classes.count
+          classes.lazy.map(&:class_number).map { |cn| "0.#{cn}" }.map(&:to_f).sum / classes_count
         else
           0.0
         end
@@ -53,13 +69,17 @@ module Concerns
       when :deviation
         (UNITS_PER_SEMESTER - count).abs / count
       when :average
-        count / classes.length
+        count / classes_count
       else
         count
       end
     end
 
     private
+
+    def classes_count
+      @classes_count ||= classes.count
+    end
 
     def grouped_classes
       @grouped_classes ||= classes.group_by(&:course)

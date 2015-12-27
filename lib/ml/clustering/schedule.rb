@@ -41,7 +41,7 @@ module ML
       private
 
       def eval(schedule_semester)
-        @clusterer.eval schedule_semester.feature_vector
+        @clusterer.eval schedule_semester.augmented_feature_vector
       end
 
       def build_feature_vectors

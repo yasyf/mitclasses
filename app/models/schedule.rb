@@ -1,9 +1,10 @@
 class Schedule < ActiveRecord::Base
   include Concerns::Cacheable
+  include Concerns::Features
 
   FEATURE_METHODS = {
     classes_per_course: [],
-    semester_booleans: [],
+    season_count: [],
     class_count: [{ mode: :deviation }],
     unit_count: [{ mode: :deviation }, { mode: :average }, { mode: :total }],
     predominant_major: [],
@@ -19,6 +20,8 @@ class Schedule < ActiveRecord::Base
 
   class ScheduleSemester
     include Concerns::Features
+
+    FEATURE_METHODS = parent::FEATURE_METHODS
 
     attr_reader :classes, :semester, :schedule
 
@@ -38,14 +41,8 @@ class Schedule < ActiveRecord::Base
       @schedule.class.clustering.suggestions self
     end
 
-    def feature_vector
-      FEATURE_METHODS.flat_map do |m, params|
-        if params.present?
-          params.flat_map { |p| send(m, p) }
-        else
-          send(m)
-        end
-      end + [id]
+    def augmented_feature_vector
+      @schedule.feature_vector[0..-2] + feature_vector
     end
 
     def conflicts
@@ -79,7 +76,7 @@ class Schedule < ActiveRecord::Base
   end
 
   def feature_vectors
-    cached { semesters.map(&:feature_vector) }
+    cached { semesters.map(&:augmented_feature_vector) }
   end
 
   def self.parse(identifier)
