@@ -7,7 +7,7 @@ from sklearn.cluster import MiniBatchKMeans
 def main_loop():
   server = Server(int(sys.argv[1]), int(sys.argv[2]))
   try:
-    server.start(server.kmeans_backend)
+    server.start(server.minibatch_kmeans_backend)
   except StopIteration:
     pass
   finally:

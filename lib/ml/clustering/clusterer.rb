@@ -4,7 +4,7 @@ module ML
   module Clustering
     class Clusterer
       SOCKET_PROTOCOL = 0
-      SOCKET_BUFFSIZE = 65536
+      SOCKET_BUFFSIZE = 131072
       SOCKET_MESSAGES_IN_FLIGHT = 90
       PYTHON_BINARY = %w(python external/ml/mitclasses/__main__.py)
 

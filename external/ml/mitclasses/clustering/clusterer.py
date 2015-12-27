@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial import distance
-from sklearn import preprocessing, decomposition, pipeline, feature_selection
+from sklearn import preprocessing, decomposition, pipeline, feature_selection, cluster
 
 class Clusterer(object):
   def __init__(self, feature_vectors, labels):
@@ -9,15 +9,17 @@ class Clusterer(object):
     self._preprocessor = pipeline.make_pipeline(
       feature_selection.VarianceThreshold(),
       preprocessing.StandardScaler(),
-      decomposition.PCA(0.9, whiten=True)
+      cluster.FeatureAgglomeration(n_clusters=int(self.num_features / 2.0)),
+      decomposition.PCA(0.75, whiten=True)
     )
     self._backend = None
 
-  def update(self, feature_vectors, labels):
-    mask = np.in1d(labels, self.clusterer.labels, assume_unique=True, invert=True)
-    new_feature_vectors, new_labels = feature_vectors[mask], labels[mask]
-    self.feature_vectors = np.concatenate((self.feature_vectors, new_feature_vectors))
-    self.labels = np.concatenate((self.labels, new_labels))
+  def update(self, feature_vectors, labels, assume_unique=True):
+    if not assume_unique:
+      mask = np.in1d(labels, self.labels, assume_unique=True, invert=True)
+      feature_vectors, labels = feature_vectors[mask], labels[mask]
+    self.feature_vectors = np.concatenate((self.feature_vectors, feature_vectors))
+    self.labels = np.concatenate((self.labels, labels))
 
   @property
   def backend(self):
@@ -28,10 +30,18 @@ class Clusterer(object):
     self._backend = backend
 
   @property
+  def num_features(self):
+    return self.feature_vectors.shape[1]
+
+  @property
+  def num_samples(self):
+    return self.feature_vectors.shape[0]
+
+  @property
   def num_clusters(self):
     if self.backend and self.backend.cluster_centers_:
       return self.backend.cluster_centers_.shape[0]
-    return int(np.sqrt(self.feature_vectors.shape[0] / 2.0))
+    return int(np.sqrt(self.num_samples / 2.0))
 
   def preprocess(self, X):
     return self._preprocessor.transform(X)

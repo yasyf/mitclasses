@@ -1,4 +1,6 @@
 class Schedule < ActiveRecord::Base
+  include Concerns::Cacheable
+
   FEATURE_METHODS = {
     classes_per_course: [],
     semester_booleans: [],
@@ -77,7 +79,7 @@ class Schedule < ActiveRecord::Base
   end
 
   def feature_vectors
-    semesters.map(&:feature_vector)
+    cached { semesters.map(&:feature_vector) }
   end
 
   def self.parse(identifier)
