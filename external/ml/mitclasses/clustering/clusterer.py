@@ -14,8 +14,10 @@ class Clusterer(object):
     self._backend = None
 
   def update(self, feature_vectors, labels):
-    self.feature_vectors = np.concatenate((self.feature_vectors, feature_vectors))
-    self.labels = np.concatenate((self.labels, labels))
+    mask = np.in1d(labels, self.clusterer.labels, assume_unique=True, invert=True)
+    new_feature_vectors, new_labels = feature_vectors[mask], labels[mask]
+    self.feature_vectors = np.concatenate((self.feature_vectors, new_feature_vectors))
+    self.labels = np.concatenate((self.labels, new_labels))
 
   @property
   def backend(self):
