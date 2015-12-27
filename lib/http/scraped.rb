@@ -4,7 +4,7 @@ module HTTP
 
     @insecure = false
 
-    def initialize
+    def initialize(*args, **kwargs)
       @agent = Mechanize.new
     end
 

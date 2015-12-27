@@ -7,7 +7,7 @@ module ML
         set_clusterer
       end
 
-      def suggestions(schedule_semester)
+      def suggestions(schedule_semester, ignore_conflicts: false)
         cluster = eval(schedule_semester)
 
         all_classes = schedule_semester.schedule.classes.includes(:semester)
@@ -23,7 +23,7 @@ module ML
 
               next unless c.offered?
               next if all_class_set.include?(c.number)
-              next if schedule_semester.conflicts? c
+              next if !ignore_conflicts && schedule_semester.conflicts?(c)
               next unless c.prereqs.blank? || c.prereqs.satisfied?(completed_classes)
               next unless c.coreqs.blank? || c.coreqs.satisfied?(completed_classes)
 

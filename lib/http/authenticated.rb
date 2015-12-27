@@ -1,14 +1,8 @@
 module HTTP
   class AuthenticationError < StandardError; end
   class Authenticated < Scraped
-    def initialize(username = nil, password = nil)
-      @username = username || ENV['MIT_USERNAME']
-      @password = password || ENV['MIT_PASSWORD']
-
-      raise AuthenticationError, "missing username" unless @username.present?
-      raise AuthenticationError, "missing password" unless @password.present?
-
-      super()
+    def initialize
+      super
       login
     end
 
@@ -35,8 +29,8 @@ module HTTP
 
     def handle_idp
       form 1
-      set 'j_username', @username
-      set 'j_password', @password
+      set 'j_username', ENV['MIT_USERNAME']
+      set 'j_password', ENV['MIT_PASSWORD']
       submit
       submit
     end

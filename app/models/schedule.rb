@@ -84,8 +84,8 @@ class Schedule < ActiveRecord::Base
     Schedule.find(id).semester Semester.parse(semester)
   end
 
-  def self.for_student(kerberos)
-    student = Student.where(kerberos: kerberos).first_or_create!
+  def self.for_student(student)
+    student = Student.where(kerberos: student).first_or_create! if student.is_a?(String)
     where(student: student).first || from_course_road(student)
   end
 
@@ -95,7 +95,7 @@ class Schedule < ActiveRecord::Base
     offset = student_year - 1
 
     classes = HTTP::CourseRoad.new.hash(student.kerberos).map do |c|
-      next if c['classterm'] == 0 || c['year'].to_i == 0
+      next if c['year'].to_i == 0
 
       year = Semester.current.year - offset + (c['classterm'] / 4)
       season = [:summer, :fall, :iap, :spring][c['classterm'] % 4]
