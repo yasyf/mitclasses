@@ -4,6 +4,8 @@ module HTTP
     ssl false
 
     YEAR_REGEX = /year: (\d)\n/
+    NAME_REGEX = /name: (.*)\n/
+    DEPT_REGEX = /department: (.*)\n/
 
     def year(kerberos)
       get '/bin/cgicso', options: :general, query: kerberos

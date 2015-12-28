@@ -12,6 +12,18 @@ module SSH
       end
     end
 
+    def name
+      if match = HTTP::Finger::NAME_REGEX.match(@raw)
+        match[1].split(', ').reverse.join(' ')
+      end
+    end
+
+    def department
+      if match = HTTP::Finger::DEPT_REGEX.match(@raw)
+        match[1]
+      end
+    end
+
     private
 
     def fetch

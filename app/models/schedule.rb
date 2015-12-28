@@ -90,14 +90,12 @@ class Schedule < ActiveRecord::Base
   end
 
   def self.from_course_road(student)
-    student_year = SSH::Finger.new(student.kerberos).year
-    return nil unless student_year.present?
-    offset = student_year - 1
+    return nil unless student.graduation_year.present?
 
     classes = HTTP::CourseRoad.new.hash(student.kerberos).map do |c|
       next if c['year'].to_i == 0
 
-      year = Semester.current.year - offset + (c['classterm'] / 4)
+      year = student.graduation_year - 4 + (c['classterm'] / 4)
       season = [:summer, :fall, :iap, :spring][c['classterm'] % 4]
 
       semester = Semester.where(year: year, season: Semester.seasons[season]).first_or_create!

@@ -11,15 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151223221707) do
+ActiveRecord::Schema.define(version: 20151228034640) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "courses", force: :cascade do |t|
-    t.text     "number",     null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.text     "number",      null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.string   "description"
   end
 
   create_table "evaluations", force: :cascade do |t|
@@ -127,10 +128,15 @@ ActiveRecord::Schema.define(version: 20151223221707) do
   add_index "semesters", ["season", "year"], name: "index_semesters_on_season_and_year", unique: true, using: :btree
 
   create_table "students", force: :cascade do |t|
-    t.string   "kerberos",   null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "kerberos",        null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.integer  "graduation_year"
+    t.string   "name"
+    t.integer  "course_id"
   end
+
+  add_index "students", ["course_id"], name: "index_students_on_course_id", using: :btree
 
   create_table "textbooks", force: :cascade do |t|
     t.integer  "mit_class_id"
@@ -155,5 +161,6 @@ ActiveRecord::Schema.define(version: 20151223221707) do
   add_foreign_key "schedules", "students"
   add_foreign_key "sections", "locations"
   add_foreign_key "sections", "mit_classes"
+  add_foreign_key "students", "courses"
   add_foreign_key "textbooks", "mit_classes"
 end
