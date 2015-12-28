@@ -33,13 +33,13 @@ module SSH
       list_query = @ssh.exec!("blanche -l #{list}")
       user_query = @ssh.exec!("blanche -u #{list}")
 
-      lists = if list_query.include?(':')
+      lists = if list_query.include?(': ')
         []
       else
         list_query.split("\n").map { |l| l[5..-1] }
       end
 
-      users = if user_query.include?(':')
+      users = if user_query.include?(': ')
         []
       else
         user_query.split("\n")

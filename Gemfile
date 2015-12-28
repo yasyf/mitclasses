@@ -48,6 +48,7 @@ group :development do
   gem 'spring'
 
   gem 'rails-erd'
+  gem 'awesome_print'
 end
 
 group :production do
