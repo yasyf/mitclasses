@@ -1,9 +1,11 @@
 import sys, os
 from server import Server
 from models.schedule import Schedule
+from models.mit_class import MitClass
 from learning.clusterer import Clusterer
 from learning.classifier import Classifier
 from sklearn.cluster import MiniBatchKMeans
+from sklearn.svm import SVC
 
 def main_loop():
   socket_fd, num_features, learning_type = sys.argv[1:4]
@@ -22,7 +24,7 @@ def main_loop():
   finally:
     server.close()
 
-def manual():
+def manual_clustering():
   feature_vectors, labels = Schedule.fetch_all(wrap=False)
   clusterer = Clusterer(feature_vectors, labels)
   clusterer.backend = MiniBatchKMeans(clusterer.num_clusters)
@@ -31,8 +33,20 @@ def manual():
   print labels[0]
   print clusterer.predict(feature_vectors[0])
 
+def manual_classification():
+  preprocess_vectors = MitClass.fetch_preprocess_vectors()
+  feature_vectors, labels = MitClass.fetch_feedback()
+  classifier = Classifier(preprocess_vectors, feature_vectors, labels)
+  classifier.backend = SVC()
+  classifier.fit()
+
+  print labels[0]
+  print classifier.predict(feature_vectors[0])
+
 if __name__ == '__main__':
-  if os.getenv('MODE') == 'manual':
-    manual()
+  if os.getenv('MODE') == 'clustering':
+    manual_clustering()
+  elif os.getenv('MODE') == 'classification':
+    manual_classification()
   else:
     main_loop()

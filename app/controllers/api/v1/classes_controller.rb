@@ -1,8 +1,16 @@
 module Api
   module V1
     class ClassesController < ApplicationController
+      def index
+        render json: { classes: semester.feature_vectors }
+      end
+
+      def feedback
+        render json: { classes: Feedback.all.map(&:feature_vector) }
+      end
+
       def show
-        render json: semester.mit_class(params[:id])
+        render json: { 'class' => semester.mit_class(params[:id]) }
       end
 
       private

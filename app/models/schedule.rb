@@ -14,8 +14,10 @@ class Schedule < ActiveRecord::Base
 
   FEATURE_INLCUDES = [:semester, { sections: :times }, :course]
 
-  has_and_belongs_to_many :mit_classes
   belongs_to :student
+
+  has_many :feedbacks
+  has_and_belongs_to_many :mit_classes
 
   alias_method :classes, :mit_classes
 
@@ -75,6 +77,10 @@ class Schedule < ActiveRecord::Base
 
   def feature_vectors
     cached { semesters.map(&:augmented_feature_vector) }
+  end
+
+  def feedback(mit_class, positive)
+    feedbacks.where(mit_class: mit_class).first_or_create.update!(positive: positive)
   end
 
   def self.parse(identifier)

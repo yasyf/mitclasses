@@ -5,7 +5,7 @@ class MitClass < ActiveRecord::Base
   FEATURE_METHODS = {
     average_course_number: [],
     average_class_number: [],
-    name: []
+    method_feature: [{ method_name: 'name', string: true }]
   }
 
   REGEX = /((([A-Z]{2,3})|(([1][0-2,4-8]|[2][0-2,4]|[1-9])[AWFHLM]?))\.(([S]?[0-9]{2,4}[AJ]?)|(UA[TR])))/
@@ -14,6 +14,7 @@ class MitClass < ActiveRecord::Base
   belongs_to :course
   belongs_to :instructor
 
+  has_many :feedbacks, dependent: :destroy
   has_many :sections, dependent: :destroy
   has_many :textbooks, dependent: :destroy
   has_one :evaluation, dependent: :destroy

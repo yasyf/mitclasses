@@ -35,6 +35,10 @@ module Concerns
       end
     end
 
+    def method_feature(method_name: nil, string: false)
+      string ? send(method_name).to_s : send(method_name).to_f
+    end
+
     def season_count(percent: true)
       grouped = classes.group_by { |c| c.semester.season }
       Semester.seasons.slice(:fall, :spring).keys.sort.map do |season|

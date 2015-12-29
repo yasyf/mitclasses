@@ -55,12 +55,15 @@ class Learner(object):
   def postprocess(self, X_raw, X, y):
     return y
 
+  def _preprocess_and_fit(self):
+    self.feature_vectors = self._preprocessor.fit_transform(self.feature_vectors)
+    self.backend.fit(self.feature_vectors, self.labels)
+
   def fit(self):
     assert self.backend is not None
 
     self._original_feature_vectors = self.feature_vectors.copy()
-    self.feature_vectors = self._preprocessor.fit_transform(self.feature_vectors)
-    self.backend.fit(self.feature_vectors)
+    self._preprocess_and_fit()
 
   def predict(self, X_raw):
     assert self.backend is not None

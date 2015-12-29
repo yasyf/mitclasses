@@ -98,6 +98,10 @@ class Semester < ActiveRecord::Base
     where(season: seasons[season], year: semester.first(4).to_i).first!
   end
 
+  def feature_vectors
+    classes.select { |c| c.offered? }.map(&:feature_vector)
+  end
+
   private
 
   def class_scope(number)

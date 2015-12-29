@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151228034640) do
+ActiveRecord::Schema.define(version: 20151229122740) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,18 @@ ActiveRecord::Schema.define(version: 20151228034640) do
   end
 
   add_index "evaluations", ["mit_class_id"], name: "index_evaluations_on_mit_class_id", using: :btree
+
+  create_table "feedbacks", force: :cascade do |t|
+    t.integer  "schedule_id"
+    t.integer  "mit_class_id"
+    t.boolean  "positive",     null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "feedbacks", ["mit_class_id"], name: "index_feedbacks_on_mit_class_id", using: :btree
+  add_index "feedbacks", ["schedule_id", "mit_class_id"], name: "index_feedbacks_on_schedule_id_and_mit_class_id", unique: true, using: :btree
+  add_index "feedbacks", ["schedule_id"], name: "index_feedbacks_on_schedule_id", using: :btree
 
   create_table "instructors", force: :cascade do |t|
     t.string   "name",       null: false
@@ -155,6 +167,8 @@ ActiveRecord::Schema.define(version: 20151228034640) do
   add_index "textbooks", ["mit_class_id"], name: "index_textbooks_on_mit_class_id", using: :btree
 
   add_foreign_key "evaluations", "mit_classes"
+  add_foreign_key "feedbacks", "mit_classes"
+  add_foreign_key "feedbacks", "schedules"
   add_foreign_key "mit_classes", "courses"
   add_foreign_key "mit_classes", "instructors"
   add_foreign_key "mit_classes", "semesters"

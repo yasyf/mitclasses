@@ -1,8 +1,9 @@
 class Student < ActiveRecord::Base
   ANONYMOUS_KERBEROS = 'anonymous'
 
-  has_many :schedules
   belongs_to :course
+
+  has_many :schedules
 
   validates :kerberos, presence: true, uniqueness: true, format: { with: /\A\w+\z/ }
   validates :graduation_year, numericality: { greater_than: 2000, less_than: 3000, allow_blank: true }
