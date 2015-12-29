@@ -7,6 +7,7 @@ class Learner(object):
     self.labels = labels
     self._preprocessor = None
     self._backend = None
+    self._original_feature_vectors = None
 
   @classmethod
   def empty(cls, num_features):
@@ -32,6 +33,13 @@ class Learner(object):
     return self.feature_vectors.shape[1]
 
   @property
+  def num_original_features(self):
+    try:
+      return self._original_feature_vectors.shape[1]
+    except AttributeError:
+      return self.num_features
+
+  @property
   def num_samples(self):
     return self.feature_vectors.shape[0]
 
@@ -44,12 +52,13 @@ class Learner(object):
 
     return self._preprocessor.transform(X)
 
-  def postprocess(self, X, y):
+  def postprocess(self, X_raw, X, y):
     return y
 
   def fit(self):
     assert self.backend is not None
 
+    self._original_feature_vectors = self.feature_vectors.copy()
     self.feature_vectors = self._preprocessor.fit_transform(self.feature_vectors)
     self.backend.fit(self.feature_vectors)
 
@@ -57,4 +66,4 @@ class Learner(object):
     assert self.backend is not None
 
     X = self.preprocess(X_raw)
-    return self.postprocess(X, self.backend.predict(X))
+    return self.postprocess(X_raw, X, self.backend.predict(X))
