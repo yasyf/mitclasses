@@ -60,12 +60,11 @@ module Concerns
     end
 
     def class_count(mode: :deviation)
-      count = classes_count.to_f
       case mode
       when :deviation
-        (CLASSES_PER_SEMESTER - count).abs / count
+        (CLASSES_PER_SEMESTER - classes_count).abs / classes_count
       else
-        count
+        classes_count
       end
     end
 
@@ -74,16 +73,18 @@ module Concerns
       self.class.sorted_courses.map { |c| (c == predominant) ? 1 : 0 }
     end
 
+    def average_course_number
+      classes.map { |c| c.course.number.to_f }.sum / classes_count
+    end
+
+    def average_class_number
+      average_class_number_given_classes classes
+    end
+
     def average_class_number_per_course
       self.class.sorted_courses.map do |course|
-        if classes = classes_by_course[course]
-          classes.lazy.map(&:class_number).map do |cn|
-            if match = /\d+/.match(cn)
-              "0.#{match[0]}"
-            else
-              0
-            end
-          end.map(&:to_f).sum / classes_count
+        if course_classes = classes_by_course[course]
+          average_class_number_given_classes course_classes
         else
           0.0
         end
@@ -103,6 +104,17 @@ module Concerns
     end
 
     private
+
+    def average_class_number_given_classes(given_classes)
+      given_classes.map(&:class_number).map do |cn|
+        if match = /\d+/.match(cn)
+          "0.#{match[0]}"
+        else
+          0
+        end.to_f
+      end.sum / given_classes.count.to_f
+    end
+
 
     def classes_count
       @classes_count ||= classes.count.to_f

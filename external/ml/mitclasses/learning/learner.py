@@ -1,18 +1,16 @@
 import numpy as np
-from scipy.spatial import distance
-from sklearn import preprocessing, decomposition, pipeline, feature_selection, cluster
+from models.schedule import Schedule
 
-class Clusterer(object):
+class Learner(object):
   def __init__(self, feature_vectors, labels):
     self.feature_vectors = feature_vectors
     self.labels = labels
-    self._preprocessor = pipeline.make_pipeline(
-      feature_selection.VarianceThreshold(),
-      preprocessing.StandardScaler(),
-      cluster.FeatureAgglomeration(n_clusters=int(self.num_features / 8.0)),
-      decomposition.PCA(0.9, whiten=True)
-    )
+    self._preprocessor = None
     self._backend = None
+
+  @classmethod
+  def empty(cls, num_features):
+    return cls(Schedule.empty_vector(num_features), Schedule.empty_label())
 
   def update(self, feature_vectors, labels, assume_unique=True):
     if not assume_unique:
@@ -39,12 +37,15 @@ class Clusterer(object):
 
   @property
   def num_clusters(self):
-    if self.backend and self.backend.cluster_centers_:
-      return self.backend.cluster_centers_.shape[0]
     return int(np.sqrt(self.num_samples / 2.0))
 
   def preprocess(self, X):
+    assert self._preprocessor is not None
+
     return self._preprocessor.transform(X)
+
+  def postprocess(self, X, y):
+    return y
 
   def fit(self):
     assert self.backend is not None
@@ -56,14 +57,4 @@ class Clusterer(object):
     assert self.backend is not None
 
     X = self.preprocess(X_raw)
-
-    cluster_index = self.backend.predict(X)
-    cluster_mask = (self.backend.labels_ == cluster_index)
-
-    cluster = self.feature_vectors[cluster_mask]
-    labels = self.labels[cluster_mask]
-
-    distances = np.apply_along_axis(lambda fv: distance.euclidean(fv, X), 1, cluster)
-    sort_mask = np.argsort(distances)
-
-    return labels[sort_mask]
+    return self.postprocess(X, self.backend.predict(X))

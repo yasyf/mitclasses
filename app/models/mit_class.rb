@@ -1,5 +1,12 @@
 class MitClass < ActiveRecord::Base
   include Concerns::SafeJson
+  include Concerns::Features
+
+  FEATURE_METHODS = {
+    average_course_number: [],
+    average_class_number: [],
+    name: []
+  }
 
   REGEX = /((([A-Z]{2,3})|(([1][0-2,4-8]|[2][0-2,4]|[1-9])[AWFHLM]?))\.(([S]?[0-9]{2,4}[AJ]?)|(UA[TR])))/
 
@@ -161,6 +168,11 @@ class MitClass < ActiveRecord::Base
 
   def set_course
     self.course = Course.where(number: number.split('.').first).first_or_create!
+  end
+
+  # for #features and #feature_vectors
+  def classes
+    [self]
   end
 
   def raw_data

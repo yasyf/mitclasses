@@ -1,11 +1,20 @@
 import sys, os
 from server import Server
 from models.schedule import Schedule
-from clustering.clusterer import Clusterer
+from learning.clusterer import Clusterer
+from learning.classifier import Classifier
 from sklearn.cluster import MiniBatchKMeans
 
 def main_loop():
-  server = Server(int(sys.argv[1]), int(sys.argv[2]))
+  socket_fd, num_features, learning_type = sys.argv[1:4]
+
+  if learning_type == 'cluster':
+    learner = Clusterer.empty(int(num_features))
+  elif learning_type == 'classify':
+    learner = Classifier.empty(int(num_features))
+  else:
+    raise RuntimeError('invalid learning_type!')
+  server = Server(int(socket_fd), learner, Schedule.parse_raw)
   try:
     server.start(server.minibatch_kmeans_backend)
   except StopIteration:

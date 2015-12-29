@@ -1,14 +1,13 @@
 import json, socket
-from models.schedule import Schedule
-from clustering.clusterer import Clusterer
-from sklearn.cluster import KMeans, MiniBatchKMeans, AffinityPropagation
+from sklearn.cluster import MiniBatchKMeans, AffinityPropagation
 
 class Server(object):
-  SOCKET_BUFFSIZE = 131072
+  SOCKET_BUFFSIZE = 1048576
 
-  def __init__(self, socket_fd, num_features):
+  def __init__(self, socket_fd, learner, parser):
     self.socket = socket.fromfd(socket_fd, socket.AF_UNIX, socket.SOCK_DGRAM)
-    self.clusterer = Clusterer(Schedule.empty_vector(num_features), Schedule.empty_label())
+    self.learner = learner
+    self.parser = parser
 
   def read(self):
     try:
@@ -27,8 +26,8 @@ class Server(object):
     while True:
       message = self.read()
       if message['type'] == 'features':
-        feature_vectors, labels = Schedule.parse_raw(message['data'])
-        self.clusterer.update(feature_vectors, labels)
+        feature_vectors, labels = self.parser(message['data'])
+        self.learner.update(feature_vectors, labels)
       elif message['type'] == 'eof':
         break
 
@@ -36,27 +35,20 @@ class Server(object):
     while True:
       message = self.read()
       if message['type'] == 'features':
-        return Schedule.parse_raw(message['data'])
+        return self.parser(message['data'])
       elif message['type'] == 'quit':
         raise StopIteration
-
-  def seed_from_http(self):
-    feature_vectors, labels = Schedule.fetch_all(wrap=False)
-    self.clusterer.update(feature_vectors, labels)
 
   def affinity_propogation_backend(self):
     return AffinityPropagation()
 
-  def kmeans_backend(self):
-    return KMeans(n_clusters=self.clusterer.num_clusters, n_jobs=-1)
-
   def minibatch_kmeans_backend(self):
-    return MiniBatchKMeans(n_clusters=self.clusterer.num_clusters)
+    return MiniBatchKMeans(n_clusters=self.learner.num_clusters)
 
   def start(self, backend_fn=None):
     self.seed_from_stdin()
-    self.clusterer.backend = backend_fn() or self.kmeans_backend()
-    self.clusterer.fit()
+    self.learner.backend = backend_fn()
+    self.learner.fit()
 
     self.send('trained model')
 
@@ -66,5 +58,5 @@ class Server(object):
     while True:
       feature_vectors, _ = self.read_from_stdin()
       feature_vector = feature_vectors[0].reshape(1, -1)
-      cluster = self.clusterer.predict(feature_vector)
-      self.send(cluster.tolist(), 'cluster')
+      result = self.learner.predict(feature_vector)
+      self.send(result.tolist(), 'result')
