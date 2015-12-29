@@ -9,8 +9,8 @@ class Clusterer(object):
     self._preprocessor = pipeline.make_pipeline(
       feature_selection.VarianceThreshold(),
       preprocessing.StandardScaler(),
-      cluster.FeatureAgglomeration(n_clusters=int(self.num_features / 4.0)),
-      decomposition.PCA(0.75, whiten=True)
+      cluster.FeatureAgglomeration(n_clusters=int(self.num_features / 8.0)),
+      decomposition.PCA(0.9, whiten=True)
     )
     self._backend = None
 
