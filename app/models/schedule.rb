@@ -5,6 +5,7 @@ class Schedule < ActiveRecord::Base
   FEATURE_METHODS = {
     classes_per_course: [],
     season_count: [],
+    year_count: [],
     class_count: [{ mode: :deviation }],
     unit_count: [{ mode: :deviation }, { mode: :average }, { mode: :total }],
     predominant_major: [],
@@ -26,15 +27,12 @@ class Schedule < ActiveRecord::Base
     attr_reader :classes, :semester, :schedule
 
     delegate :to_s, to: :semester
+    delegate :student, to: :schedule
 
     def initialize(classes, semester, schedule)
       @classes = classes
       @semester = semester
       @schedule = schedule
-    end
-
-    def method_missing(method)
-      @semester.send(method)
     end
 
     def suggestions
@@ -112,10 +110,10 @@ class Schedule < ActiveRecord::Base
   end
 
   def semester_hash
-    @semester_hash ||= grouped_classes.map { |s, c| [s, ScheduleSemester.new(c, s, self)] }.to_h
+    @semester_hash ||= classes_by_semester.map { |s, c| [s, ScheduleSemester.new(c, s, self)] }.to_h
   end
 
-  def grouped_classes
-    @grouped_classes ||= classes.includes(FEATURE_INLCUDES).group_by(&:semester)
+  def classes_by_semester
+    @classes_by_semester ||= classes.includes(FEATURE_INLCUDES).group_by(&:semester)
   end
 end

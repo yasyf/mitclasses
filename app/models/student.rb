@@ -18,6 +18,10 @@ class Student < ActiveRecord::Base
     save!
   end
 
+  def schedule
+    Schedule.for_student self
+  end
+
   private
 
   def finger
@@ -25,8 +29,8 @@ class Student < ActiveRecord::Base
   end
 
   def populate
-    self.graduation_year = Semester.current.year - (finger.year - 1) + 4 if finger.year.present?
-    self.name = finger.name
+    self.graduation_year = Semester.current.year + (4 - finger.year) if finger.year.present?
+    self.name = finger.name.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
     self.course = Course.where(description: finger.department).first if finger.department.present?
   end
 end
