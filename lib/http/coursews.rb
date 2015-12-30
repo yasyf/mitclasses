@@ -13,6 +13,8 @@ module HTTP
 
     def classes
       @classes ||= JSON.parse(self.class.get('/coursews', @options).body)['items']
+    rescue HTTParty::Error, SocketError
+      []
     end
 
     def mit_class(number)

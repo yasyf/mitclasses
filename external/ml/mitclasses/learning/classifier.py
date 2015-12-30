@@ -2,7 +2,7 @@ from models.base import Base
 from learner import Learner
 import scipy
 import numpy as np
-from sklearn import feature_extraction, base, pipeline, feature_selection, preprocessing, decomposition
+from sklearn import feature_extraction, base, pipeline, feature_selection, preprocessing
 
 class TextToVect(base.TransformerMixin):
   DATA_TYPE = 'float64'
@@ -35,7 +35,6 @@ class Classifier(Learner):
       self._vectorizer,
       feature_selection.VarianceThreshold(),
       preprocessing.StandardScaler(),
-      decomposition.PCA(0.9, whiten=True),
     )
     self.preprocessing_vectors = preprocessing_vectors
 
