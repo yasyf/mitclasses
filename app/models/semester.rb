@@ -1,5 +1,6 @@
 class Semester < ActiveRecord::Base
   include Concerns::SafeJson
+  include Concerns::Cacheable
   include Comparable
 
   has_many :classes, class_name: 'MitClass'
@@ -99,7 +100,7 @@ class Semester < ActiveRecord::Base
   end
 
   def feature_vectors
-    classes.select { |c| c.offered? }.map(&:feature_vector)
+    cached { classes.where(offered: true).includes(:course).map(&:feature_vector) }
   end
 
   private

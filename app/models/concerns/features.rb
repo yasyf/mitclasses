@@ -9,6 +9,10 @@ module Concerns
       def sorted_courses
         @sorted_courses ||= Course.sorted
       end
+
+      def num_features
+        @num_features ||= first.feature_vector.size - 1
+      end
     end
 
     def feature_vector

@@ -6,7 +6,7 @@ module Api
       end
 
       def feedback
-        render json: { classes: Feedback.all.map(&:feature_vector) }
+        render json: { classes: Feedback.where(mit_class: semester.classes).map(&:feature_vector) }
       end
 
       def show

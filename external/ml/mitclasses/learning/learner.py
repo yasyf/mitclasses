@@ -1,5 +1,5 @@
 import numpy as np
-from models.schedule import Schedule
+from models.base import Base
 
 class Learner(object):
   def __init__(self, feature_vectors, labels):
@@ -11,7 +11,10 @@ class Learner(object):
 
   @classmethod
   def empty(cls, num_features):
-    return cls(Schedule.empty_vector(num_features), Schedule.empty_label())
+    return cls(Base.empty_vector(num_features), Base.empty_label())
+
+  def update_preprocess(self, preprocessing_vectors):
+    raise NotImplementedError
 
   def update(self, feature_vectors, labels, assume_unique=True):
     if not assume_unique:

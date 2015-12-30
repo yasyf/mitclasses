@@ -6,18 +6,22 @@ module ML
       SOCKET_PROTOCOL = 0
       SOCKET_BUFFSIZE = 1048576
       SOCKET_MESSAGES_IN_FLIGHT = 80
+      LARGE_SOCKET_MESSAGES_IN_FLIGHT = 10
       PYTHON_BINARY = %w(python external/ml/mitclasses)
 
-      def initialize(num_features)
-        @num_features = num_features
+      def initialize(model)
+        @model = model
+        @num_features = Array.wrap(model.num_features)
         setup_sockets
         spawn_process
       end
 
+      def preprocess(preprocess_vectors)
+        send_vectors preprocess_vectors, :preprocess, in_flight: LARGE_SOCKET_MESSAGES_IN_FLIGHT
+      end
+
       def build(feature_vectors)
-        feature_vectors.in_groups_of(SOCKET_MESSAGES_IN_FLIGHT, false) do |group|
-          send_message group, :features
-        end
+        send_vectors feature_vectors, :features
         send_message nil, :eof
         receive
       end
@@ -34,6 +38,12 @@ module ML
       end
 
       private
+
+      def send_vectors(vectors, type, in_flight: SOCKET_MESSAGES_IN_FLIGHT)
+        vectors.in_groups_of(in_flight, false) do |group|
+          send_message group, type
+        end
+      end
 
       def send_message(data, type = 'info')
         @ruby_socket.send(JSON.dump(type: type, data: data), SOCKET_PROTOCOL)
@@ -58,7 +68,8 @@ module ML
 
       def spawn_process
         @pid = Process.spawn *PYTHON_BINARY, @python_socket.fileno.to_s,
-          @num_features.to_s, self.class.type.to_s, @python_socket => @python_socket
+          @num_features.join(','), self.class.type.to_s, @model.name,
+          @python_socket => @python_socket
         @python_socket.close
       end
     end

@@ -38,7 +38,7 @@ class Schedule < ActiveRecord::Base
     end
 
     def suggestions
-      @schedule.class.clustering.suggestions self
+      @schedule.class.learning.suggestions self
     end
 
     def augmented_feature_vector
@@ -79,8 +79,12 @@ class Schedule < ActiveRecord::Base
     cached { semesters.map(&:augmented_feature_vector) }
   end
 
-  def feedback(mit_class, positive)
+  def feedback!(mit_class, positive)
     feedbacks.where(mit_class: mit_class).first_or_create.update!(positive: positive)
+  end
+
+  def self.num_features
+    @num_features ||= first.feature_vectors.first.size - 1
   end
 
   def self.parse(identifier)
@@ -111,8 +115,8 @@ class Schedule < ActiveRecord::Base
 
   private
 
-  def self.clustering
-    @clustering ||= ML::Schedule.new all.includes(:student, mit_classes: FEATURE_INLCUDES)
+  def self.learning
+    @learning ||= ML::Schedule.new all.includes(:student, mit_classes: FEATURE_INLCUDES)
   end
 
   def semester_hash

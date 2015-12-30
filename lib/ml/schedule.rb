@@ -2,12 +2,13 @@ module ML
   class Schedule
     def initialize(schedules)
       @schedules = schedules
-      build_feature_vectors
-      set_clusterer
+      @schedule_ids = @schedules.map(&:id)
+      build_vectors
+      set_learners
     end
 
-    def suggestions(schedule_semester, ignore_conflicts: false)
-      cluster = eval(schedule_semester)
+    def suggestions(schedule_semester, ignore_conflicts: false, use_classifier: false)
+      cluster = fetch_cluster(schedule_semester)
 
       all_classes = schedule_semester.schedule.classes.includes(:semester)
       all_class_set = Set.new all_classes.map(&:number)
@@ -25,6 +26,8 @@ module ML
             next if !ignore_conflicts && schedule_semester.conflicts?(c)
             next unless c.prereqs.blank? || c.prereqs.satisfied?(completed_classes)
             next unless c.coreqs.blank? || c.coreqs.satisfied?(completed_classes)
+            Rails.logger.info "#{c.number}: #{evaluate(schedule_semester, c).to_s}"
+            next if use_classifier && !evaluate(schedule_semester, c)
 
             all_class_set.add c.number
             yielder.yield c
@@ -39,17 +42,49 @@ module ML
 
     private
 
-    def eval(schedule_semester)
+    def fetch_cluster(schedule_semester)
       @clusterer.eval schedule_semester.augmented_feature_vector
+    end
+
+    def evaluate(schedule_semester, mit_class)
+      result = @classifier.eval(Feedback.build_feature_vector(schedule_semester.schedule, mit_class)).first
+      !(result.zero? || result.blank?)
+    end
+
+    def build_vectors
+      build_preprocessing_vectors
+      build_feedback_vectors
+      build_feature_vectors
     end
 
     def build_feature_vectors
       @feature_vectors = @schedules.flat_map(&:feature_vectors)
     end
 
+    def build_preprocessing_vectors
+      semester_ids = ::Schedule.where(id: @schedule_ids).joins(mit_classes: :semester).pluck('DISTINCT semester_id')
+      @preprocessing_vectors = Semester.where(id: semester_ids).flat_map(&:feature_vectors).select { |fv| fv.present? }
+    end
+
+    def build_feedback_vectors
+      feedback_ids = ::Schedule.where(id: @schedule_ids).joins(:feedbacks).pluck('DISTINCT feedbacks.id')
+      @feedback_vectors = Feedback.where(id: feedback_ids).map(&:feature_vector)
+    end
+
+    def set_learners
+      set_classifier
+      set_clusterer
+    end
+
+    def set_classifier
+      @classifier = Learners::Classifier.new(MitClass)
+      @classifier.preprocess @preprocessing_vectors
+      @classifier.build @feedback_vectors
+    end
+
     def set_clusterer
-      @clusterer = Learners::Clusterer.new(@feature_vectors.first.size - 1)
-      @clusterer.build(@feature_vectors)
+      @clusterer = Learners::Clusterer.new(::Schedule)
+      @clusterer.build @feature_vectors
     end
   end
 end

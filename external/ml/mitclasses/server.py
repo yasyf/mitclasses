@@ -1,5 +1,6 @@
 import json, socket
 from sklearn.cluster import MiniBatchKMeans, AffinityPropagation
+from sklearn.svm import SVC
 
 class Server(object):
   SOCKET_BUFFSIZE = 1048576
@@ -28,6 +29,9 @@ class Server(object):
       if message['type'] == 'features':
         feature_vectors, labels = self.parser(message['data'])
         self.learner.update(feature_vectors, labels)
+      elif message['type'] == 'preprocess':
+        preprocess_vectors, _ = self.parser(message['data'])
+        self.learner.update_preprocess(preprocess_vectors)
       elif message['type'] == 'eof':
         break
 
@@ -44,6 +48,9 @@ class Server(object):
 
   def minibatch_kmeans_backend(self):
     return MiniBatchKMeans(n_clusters=self.learner.num_clusters)
+
+  def svc_backend(self):
+    return SVC()
 
   def start(self, backend_fn=None):
     self.seed_from_stdin()

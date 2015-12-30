@@ -167,6 +167,10 @@ class MitClass < ActiveRecord::Base
     end
   end
 
+  def self.num_features
+    @num_features ||= [super, Feedback.num_features]
+  end
+
   def set_course
     self.course = Course.where(number: number.split('.').first).first_or_create!
   end
