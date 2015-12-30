@@ -7,7 +7,7 @@ module ML
       set_learners
     end
 
-    def suggestions(schedule_semester, ignore_conflicts: false, use_classifier: false)
+    def suggestions(schedule_semester, ignore_conflicts: false, use_classifier: true)
       cluster = fetch_cluster(schedule_semester)
 
       all_classes = schedule_semester.schedule.classes.includes(:semester)
@@ -26,7 +26,6 @@ module ML
             next if !ignore_conflicts && schedule_semester.conflicts?(c)
             next unless c.prereqs.blank? || c.prereqs.satisfied?(completed_classes)
             next unless c.coreqs.blank? || c.coreqs.satisfied?(completed_classes)
-            Rails.logger.info "#{c.number}: #{evaluate(schedule_semester, c).to_s}"
             next if use_classifier && !evaluate(schedule_semester, c)
 
             all_class_set.add c.number
@@ -38,6 +37,7 @@ module ML
 
     def destroy
       @clusterer.destroy
+      @classifier.destroy
     end
 
     private
