@@ -1,7 +1,5 @@
-require 'socket'
-
 module ML
-  module Clustering
+  module Learners
     class Clusterer < Learner
       def self.type
         :cluster

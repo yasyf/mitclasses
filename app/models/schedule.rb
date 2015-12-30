@@ -112,7 +112,7 @@ class Schedule < ActiveRecord::Base
   private
 
   def self.clustering
-    @clustering ||= ML::Clustering::Schedule.new all.includes(:student, mit_classes: FEATURE_INLCUDES)
+    @clustering ||= ML::Schedule.new all.includes(:student, mit_classes: FEATURE_INLCUDES)
   end
 
   def semester_hash

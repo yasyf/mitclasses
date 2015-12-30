@@ -1,7 +1,7 @@
 require 'socket'
 
 module ML
-  module Clustering
+  module Learners
     class Learner
       SOCKET_PROTOCOL = 0
       SOCKET_BUFFSIZE = 1048576
