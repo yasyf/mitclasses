@@ -37,7 +37,7 @@ module Mitclasses
     config.react.view_helper_implementation = ReactComponentMount
 
     config.after_initialize do
-      Schedule.learning
+      Schedule.learning unless File.basename($0) == "rake"
     end
   end
 end
