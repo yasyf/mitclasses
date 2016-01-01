@@ -23,7 +23,7 @@ module HTTP
     def check_head(l)
       response = HTTParty.head(l)
       bad_domain?(response.request.last_uri) || response.code != 200
-    rescue HTTParty::Error, SocketError
+    rescue
       true
     end
 
@@ -34,7 +34,7 @@ module HTTP
         return false if bad_domain?(meta['content'].split('=').last)
       end
       body.include? mit_class.number
-    rescue HTTParty::Error, SocketError
+    rescue
       false
     end
 
