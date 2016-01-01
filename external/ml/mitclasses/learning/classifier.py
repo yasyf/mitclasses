@@ -34,7 +34,7 @@ class Classifier(Learner):
     self._preprocessor = pipeline.make_pipeline(
       self._vectorizer,
       feature_selection.VarianceThreshold(),
-      preprocessing.StandardScaler(),
+      preprocessing.StandardScaler(copy=False),
     )
     self.preprocessing_vectors = preprocessing_vectors
 

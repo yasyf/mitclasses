@@ -1,4 +1,4 @@
-import json, socket
+import json, socket, gc
 from sklearn.cluster import MiniBatchKMeans, AffinityPropagation
 from sklearn.svm import SVC
 
@@ -61,9 +61,13 @@ class Server(object):
 
     self.predict_loop()
 
+  def _predict(self):
+    feature_vectors, _ = self.read_from_stdin()
+    feature_vector = feature_vectors[0].reshape(1, -1)
+    result = self.learner.predict(feature_vector)
+    self.send(result.tolist(), 'result')
+
   def predict_loop(self):
     while True:
-      feature_vectors, _ = self.read_from_stdin()
-      feature_vector = feature_vectors[0].reshape(1, -1)
-      result = self.learner.predict(feature_vector)
-      self.send(result.tolist(), 'result')
+      self._predict()
+      gc.collect()

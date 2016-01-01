@@ -3,6 +3,7 @@ module ML
     def initialize(mutex, schedules)
       @mutex = mutex
       set_learners schedules
+      GC.start
     end
 
     def suggestions(schedule_semester, ignore_conflicts: false, use_classifier: true)

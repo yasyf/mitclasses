@@ -8,9 +8,9 @@ class Clusterer(Learner):
     super(Clusterer, self).__init__(feature_vectors, labels)
     self._preprocessor = pipeline.make_pipeline(
       feature_selection.VarianceThreshold(),
-      preprocessing.StandardScaler(),
+      preprocessing.StandardScaler(copy=False),
       cluster.FeatureAgglomeration(n_clusters=int(self.num_features / 4.0)),
-      decomposition.PCA(0.75, whiten=True)
+      decomposition.PCA(0.75, whiten=True, copy=False)
     )
     self._half_feature_vectors = None
 
