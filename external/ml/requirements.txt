@@ -1,5 +1,5 @@
 inflection==0.3.1
 numpy==1.10.2
 requests==2.9.0
-scikit-learn==0.17
 scipy==0.16.1
+scikit-learn==0.17
