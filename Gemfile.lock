@@ -115,6 +115,7 @@ GEM
       mini_portile (~> 0.6.0)
     ntlm-http (0.1.1)
     pg (0.18.4)
+    puma (2.15.3)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
@@ -256,6 +257,7 @@ DEPENDENCIES
   mechanize
   net-ssh
   pg (~> 0.15)
+  puma
   rails (= 4.2.5)
   rails-erd
   rails_12factor
