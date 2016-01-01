@@ -12,14 +12,14 @@ class Semester < ActiveRecord::Base
 
   enum season: [:fall, :spring, :iap, :summer]
 
-  def mit_class(number)
-    class_scope(number).first!
+  def mit_class(number, scope = nil)
+    class_scope(number, scope).first!
   end
 
-  def mit_class!(number)
-    mit_class(number)
+  def mit_class!(number, scope = nil)
+    mit_class(number, scope)
   rescue ActiveRecord::RecordNotFound
-    class_scope(number).first_or_create!.populate!
+    class_scope(number, scope).first_or_create!.populate!
   end
 
   def last
@@ -111,7 +111,7 @@ class Semester < ActiveRecord::Base
     classes.where(offered: true).includes(:course).map(&:feature_vector)
   end
 
-  def class_scope(number)
-    classes.where(number: number)
+  def class_scope(number, scope = nil)
+    classes.where(number: number).merge(scope)
   end
 end

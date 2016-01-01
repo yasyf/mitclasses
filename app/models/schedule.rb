@@ -13,8 +13,6 @@ class Schedule < ActiveRecord::Base
     average_class_number_per_course: []
   }
 
-  FEATURE_INLCUDES = [:semester, { sections: :times }, :course]
-
   MAX_NUM_SUGGESTIONS = 50
 
   @@mutex = Mutex.new
@@ -147,6 +145,6 @@ class Schedule < ActiveRecord::Base
   end
 
   def classes_by_semester
-    @classes_by_semester ||= classes.includes(FEATURE_INLCUDES).group_by(&:semester)
+    @classes_by_semester ||= classes.includes(:semester, :course).group_by(&:semester)
   end
 end

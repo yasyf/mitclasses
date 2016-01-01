@@ -18,7 +18,7 @@ module ML
         cluster.each do |id|
           next if id == schedule_semester.id
           ::Schedule.parse(id).classes.map(&:number).each do |cn|
-            c = schedule_semester.semester.mit_class!(cn)
+            c = schedule_semester.semester.mit_class!(cn, -> { includes(sections: :times) })
 
             next unless c.offered?
             next if all_class_set.include?(c.number)
