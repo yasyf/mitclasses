@@ -7,7 +7,7 @@ class Learner(object):
     self.labels = labels
     self._preprocessor = None
     self._backend = None
-    self._original_feature_vectors = None
+    self._original_shape = None
 
   @classmethod
   def empty(cls, num_features):
@@ -38,7 +38,7 @@ class Learner(object):
   @property
   def num_original_features(self):
     try:
-      return self._original_feature_vectors.shape[1]
+      return self._original_shape[1]
     except AttributeError:
       return self.num_features
 
@@ -65,7 +65,7 @@ class Learner(object):
   def fit(self):
     assert self.backend is not None
 
-    self._original_feature_vectors = self.feature_vectors.copy()
+    self._original_shape = self.feature_vectors.shape
     self._preprocess_and_fit()
 
   def predict(self, X_raw):

@@ -25,8 +25,8 @@ class Clusterer(Learner):
     return self.num_original_features / 2
 
   def fit(self):
+    self._half_feature_vectors = self.feature_vectors.copy()
     Learner.fit(self)
-    self._half_feature_vectors = self._original_feature_vectors.copy()
     self._half_feature_vectors[:,self.half_index:] = 0
     self._half_feature_vectors = self.preprocess(self._half_feature_vectors)
 

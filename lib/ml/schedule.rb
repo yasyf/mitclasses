@@ -4,7 +4,6 @@ module ML
       @mutex = mutex
       @schedules = schedules
       @schedule_ids = @schedules.map(&:id)
-      build_vectors
       set_learners
     end
 
@@ -56,24 +55,18 @@ module ML
       end
     end
 
-    def build_vectors
-      build_preprocessing_vectors
-      build_feedback_vectors
-      build_feature_vectors
+    def feature_vectors
+      @schedules.flat_map(&:feature_vectors)
     end
 
-    def build_feature_vectors
-      @feature_vectors = @schedules.flat_map(&:feature_vectors)
-    end
-
-    def build_preprocessing_vectors
+    def preprocessing_vectors
       semester_ids = ::Schedule.where(id: @schedule_ids).joins(mit_classes: :semester).pluck('DISTINCT semester_id')
-      @preprocessing_vectors = Semester.where(id: semester_ids).flat_map(&:feature_vectors).select { |fv| fv.present? }
+      Semester.where(id: semester_ids).flat_map(&:feature_vectors).select { |fv| fv.present? }
     end
 
-    def build_feedback_vectors
+    def feedback_vectors
       feedback_ids = ::Schedule.where(id: @schedule_ids).joins(:feedbacks).pluck('DISTINCT feedbacks.id')
-      @feedback_vectors = Feedback.where(id: feedback_ids).map(&:feature_vector)
+      Feedback.where(id: feedback_ids).map(&:feature_vector)
     end
 
     def set_learners
@@ -83,13 +76,13 @@ module ML
 
     def set_classifier
       @classifier = Learners::Classifier.new(MitClass)
-      @classifier.preprocess @preprocessing_vectors
-      @classifier.build @feedback_vectors
+      @classifier.preprocess preprocessing_vectors
+      @classifier.build feedback_vectors
     end
 
     def set_clusterer
       @clusterer = Learners::Clusterer.new(::Schedule)
-      @clusterer.build @feature_vectors
+      @clusterer.build feature_vectors
     end
   end
 end

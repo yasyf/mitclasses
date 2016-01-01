@@ -45,7 +45,7 @@ class Schedule < ActiveRecord::Base
     def suggestions(**kwargs)
       if kwargs[:cached]
         kwargs.except!(:cached)
-        key_cached kwargs, expires_in: 1.hour do
+        key_cached kwargs, expires_in: 1.day do
           @schedule.class.learning.suggestions(self, **kwargs).take(MAX_NUM_SUGGESTIONS)
         end
       else
