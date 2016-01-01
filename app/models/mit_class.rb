@@ -1,6 +1,7 @@
 class MitClass < ActiveRecord::Base
   include Concerns::SafeJson
   include Concerns::Features
+  include Concerns::Cacheable
 
   FEATURE_METHODS = {
     average_course_number: [],
@@ -79,7 +80,9 @@ class MitClass < ActiveRecord::Base
   end
 
   def conflicts?(other_class)
-    conflicts(other_class).present?
+    key_cached [id, other_class.id] do
+      conflicts(other_class).present?
+    end
   end
 
   def conflicts(other_class)
