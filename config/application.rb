@@ -35,5 +35,7 @@ module Mitclasses
 
     require Rails.root.join('lib', 'react_component_mount')
     config.react.view_helper_implementation = ReactComponentMount
+
+    config.cache_store = :redis_store, { namespace: 'cache', expires_in: 90.minutes }
   end
 end

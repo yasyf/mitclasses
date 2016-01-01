@@ -12,7 +12,7 @@ module Concerns
       cache_fetch "#{base_cache_key}/#{key_hash.sort.to_param}", options, &block
     end
 
-    def cache_fetch(key, options, block)
+    def cache_fetch(key, options, &block)
       Rails.cache.fetch(key, options.reverse_merge(base_options), &block)
     end
 
