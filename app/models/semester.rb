@@ -3,7 +3,9 @@ class Semester < ActiveRecord::Base
   include Concerns::FeatureVectors
   include Comparable
 
-  has_many :classes, class_name: 'MitClass', after_remove: :update_feature_vectors, after_add: :update_feature_vectors
+  has_many :classes, class_name: 'MitClass',
+          after_remove: :maybe_update_feature_vectors,
+          after_add: :maybe_update_feature_vectors
 
   validates :year, presence: true, numericality: { greater_than: 2000, less_than: 3000 }
   validates :season, presence: true, uniqueness: { scope: :year }
@@ -100,6 +102,10 @@ class Semester < ActiveRecord::Base
   end
 
   private
+
+  def maybe_update_feature_vectors(mit_class)
+    update_feature_vectors if mit_class.offered?
+  end
 
   def generate_feature_vectors
     classes.where(offered: true).includes(:course).map(&:feature_vector)

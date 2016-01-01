@@ -15,7 +15,7 @@ class Schedule < ActiveRecord::Base
 
   FEATURE_INLCUDES = [:semester, { sections: :times }, :course]
 
-  MAX_NUM_SUGGESTIONS = 100
+  MAX_NUM_SUGGESTIONS = 50
 
   @@mutex = Mutex.new
 
