@@ -35,5 +35,9 @@ module Mitclasses
 
     require Rails.root.join('lib', 'react_component_mount')
     config.react.view_helper_implementation = ReactComponentMount
+
+    config.after_initialize do
+      Schedule.learning
+    end
   end
 end
