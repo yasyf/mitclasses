@@ -4,7 +4,7 @@ namespace :scrape do
     blanche = SSH::Blanche.new args[:lists].split, auto_destroy: true
     blanche.search do |kerberos|
       Rails.logger.info "Scraping CourseRoad for #{kerberos}"
-      ScheduleScrapeWorker.perform_async kerberos
+      ScheduleWorkers::ScheduleScrapeWorker.perform_async kerberos
     end
   end
 end

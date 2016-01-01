@@ -1,9 +1,9 @@
 class Semester < ActiveRecord::Base
   include Concerns::SafeJson
-  include Concerns::Cacheable
+  include Concerns::FeatureVectors
   include Comparable
 
-  has_many :classes, class_name: 'MitClass'
+  has_many :classes, class_name: 'MitClass', after_remove: :update_feature_vectors, after_add: :update_feature_vectors
 
   validates :year, presence: true, numericality: { greater_than: 2000, less_than: 3000 }
   validates :season, presence: true, uniqueness: { scope: :year }
@@ -99,11 +99,11 @@ class Semester < ActiveRecord::Base
     where(season: seasons[season], year: semester.first(4).to_i).first!
   end
 
-  def feature_vectors
-    cached { classes.where(offered: true).includes(:course).map(&:feature_vector) }
-  end
-
   private
+
+  def generate_feature_vectors
+    classes.where(offered: true).includes(:course).map(&:feature_vector)
+  end
 
   def class_scope(number)
     classes.where(number: number)

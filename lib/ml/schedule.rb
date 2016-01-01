@@ -2,9 +2,7 @@ module ML
   class Schedule
     def initialize(mutex, schedules)
       @mutex = mutex
-      @schedules = schedules
-      @schedule_ids = @schedules.map(&:id)
-      set_learners
+      set_learners schedules
     end
 
     def suggestions(schedule_semester, ignore_conflicts: false, use_classifier: true)
@@ -55,34 +53,35 @@ module ML
       end
     end
 
-    def feature_vectors
-      @schedules.flat_map(&:feature_vectors)
+    def feature_vectors(schedules)
+      schedules.flat_map(&:feature_vectors)
     end
 
-    def preprocessing_vectors
-      semester_ids = ::Schedule.where(id: @schedule_ids).joins(mit_classes: :semester).pluck('DISTINCT semester_id')
+    def preprocessing_vectors(schedule_ids)
+      semester_ids = ::Schedule.where(id: schedule_ids).joins(mit_classes: :semester).pluck('DISTINCT semester_id')
       Semester.where(id: semester_ids).flat_map(&:feature_vectors).select { |fv| fv.present? }
     end
 
-    def feedback_vectors
-      feedback_ids = ::Schedule.where(id: @schedule_ids).joins(:feedbacks).pluck('DISTINCT feedbacks.id')
+    def feedback_vectors(schedule_ids)
+      feedback_ids = ::Schedule.where(id: schedule_ids).joins(:feedbacks).pluck('DISTINCT feedbacks.id')
       Feedback.where(id: feedback_ids).map(&:feature_vector)
     end
 
-    def set_learners
-      set_classifier
-      set_clusterer
+    def set_learners(schedules)
+      set_classifier schedules
+      set_clusterer schedules
     end
 
-    def set_classifier
+    def set_classifier(schedules)
       @classifier = Learners::Classifier.new(MitClass)
-      @classifier.preprocess preprocessing_vectors
-      @classifier.build feedback_vectors
+      schedule_ids = schedules.pluck(:id)
+      @classifier.preprocess preprocessing_vectors(schedule_ids)
+      @classifier.build feedback_vectors(schedule_ids)
     end
 
-    def set_clusterer
+    def set_clusterer(schedules)
       @clusterer = Learners::Clusterer.new(::Schedule)
-      @clusterer.build feature_vectors
+      @clusterer.build feature_vectors(schedules)
     end
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151229122740) do
+ActiveRecord::Schema.define(version: 20160101094904) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -111,8 +111,9 @@ ActiveRecord::Schema.define(version: 20151229122740) do
 
   create_table "schedules", force: :cascade do |t|
     t.integer  "student_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.json     "feature_vectors", default: [], null: false
   end
 
   add_index "schedules", ["student_id"], name: "index_schedules_on_student_id", using: :btree
@@ -131,10 +132,11 @@ ActiveRecord::Schema.define(version: 20151229122740) do
   add_index "sections", ["number", "mit_class_id"], name: "index_sections_on_number_and_mit_class_id", unique: true, using: :btree
 
   create_table "semesters", force: :cascade do |t|
-    t.integer  "year",       null: false
-    t.integer  "season",     null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "year",                         null: false
+    t.integer  "season",                       null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.json     "feature_vectors", default: [], null: false
   end
 
   add_index "semesters", ["season", "year"], name: "index_semesters_on_season_and_year", unique: true, using: :btree

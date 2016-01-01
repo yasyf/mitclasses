@@ -10,7 +10,7 @@ class Feedback < ActiveRecord::Base
   validates :mit_class, presence: true, uniqueness: { scope: [:schedule] }
 
   def feature_vector
-    cached { schedule_feature_vector[0..-2] + class_feature_vector[0..-2] + [positive? ? 1 : 0] }
+    cached { self.class.build_feature_vector(schedule, mit_class, positive? ? 1 : 0) }
   end
 
   def self.num_features
@@ -25,13 +25,5 @@ class Feedback < ActiveRecord::Base
 
   def react_json
     { number: mit_class.number, name: mit_class.name, positive: positive? }
-  end
-
-  def schedule_feature_vector
-    Schedule.where(id: schedule_id).includes(mit_classes: Schedule::FEATURE_INLCUDES).first.feature_vector
-  end
-
-  def class_feature_vector
-    mit_class.feature_vector
   end
 end

@@ -1,6 +1,7 @@
 class Schedule < ActiveRecord::Base
   include Concerns::Cacheable
   include Concerns::Features
+  include Concerns::FeatureVectors
 
   FEATURE_METHODS = {
     classes_per_course: [],
@@ -91,10 +92,6 @@ class Schedule < ActiveRecord::Base
     semester_hash[semester]
   end
 
-  def feature_vectors
-    cached { semesters.map(&:augmented_feature_vector) }
-  end
-
   def feedback!(mit_class, positive)
     feedbacks.where(mit_class: mit_class).first_or_create.update!(positive: positive)
   end
@@ -129,11 +126,19 @@ class Schedule < ActiveRecord::Base
     classes.present? ? self.create!(mit_classes: classes, student: student) : nil
   end
 
+  def feature_vector
+    cached { super }
+  end
+
   private
+
+  def generate_feature_vectors
+    semesters.map(&:augmented_feature_vector)
+  end
 
   def self.learning
     @@mutex.synchronize do
-      @learning ||= ML::Schedule.new @@mutex, all.includes(:student, mit_classes: FEATURE_INLCUDES)
+      @learning ||= ML::Schedule.new @@mutex, all.includes(:student)
     end
   end
 

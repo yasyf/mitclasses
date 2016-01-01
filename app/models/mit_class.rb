@@ -176,7 +176,7 @@ class MitClass < ActiveRecord::Base
     self.course = Course.where(number: number.split('.').first).first_or_create!
   end
 
-  # for #features and #feature_vectors
+  # for #features and #feature_vector
   def classes
     [self]
   end

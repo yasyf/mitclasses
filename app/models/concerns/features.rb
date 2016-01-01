@@ -7,7 +7,7 @@ module Concerns
 
     class_methods do
       def sorted_courses
-        @sorted_courses ||= Course.sorted
+        @sorted_courses ||= Course.sorted.to_a
       end
 
       def num_features
