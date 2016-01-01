@@ -1,6 +1,7 @@
 module ML
   class Schedule
-    def initialize(schedules)
+    def initialize(mutex, schedules)
+      @mutex = mutex
       @schedules = schedules
       @schedule_ids = @schedules.map(&:id)
       build_vectors
@@ -43,12 +44,16 @@ module ML
     private
 
     def fetch_cluster(schedule_semester)
-      @clusterer.eval schedule_semester.augmented_feature_vector
+      @mutex.synchronize do
+        @clusterer.eval schedule_semester.augmented_feature_vector
+      end
     end
 
     def evaluate(schedule_semester, mit_class)
-      result = @classifier.eval(Feedback.build_feature_vector(schedule_semester.schedule, mit_class)).first
-      !(result.zero? || result.blank?)
+      @mutex.synchronize do
+        result = @classifier.eval(Feedback.build_feature_vector(schedule_semester.schedule, mit_class)).first
+        !(result.zero? || result.blank?)
+      end
     end
 
     def build_vectors

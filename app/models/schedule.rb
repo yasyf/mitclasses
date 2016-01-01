@@ -16,6 +16,8 @@ class Schedule < ActiveRecord::Base
 
   MAX_NUM_SUGGESTIONS = 100
 
+  @@mutex = Mutex.new
+
   belongs_to :student
 
   has_many :feedbacks
@@ -130,7 +132,9 @@ class Schedule < ActiveRecord::Base
   private
 
   def self.learning
-    @learning ||= ML::Schedule.new all.includes(:student, mit_classes: FEATURE_INLCUDES)
+    @@mutex.synchronize do
+      @learning ||= ML::Schedule.new @@mutex, all.includes(:student, mit_classes: FEATURE_INLCUDES)
+    end
   end
 
   def semester_hash
