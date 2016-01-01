@@ -2,12 +2,12 @@
   getInitialState: ->
     feedbacks: @props.feedbacks
   destroyFeedback: (id) ->
-    $.post id,
+    $.post "#{@props.endpoints.feedbacks}/#{id}",
       _method: 'DELETE'
     .then =>
       @setState feedbacks: _.filter @state.feedbacks, (f) -> f.id isnt id
   toggleFeedback: (id, newValue) ->
-    $.post id,
+    $.post "#{@props.endpoints.feedbacks}/#{id}",
       _method: 'PATCH'
       feedback:
         positive: newValue

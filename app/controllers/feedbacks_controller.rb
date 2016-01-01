@@ -3,8 +3,17 @@ class FeedbacksController < ApplicationController
 
   before_action :feedbacks
 
+  def index
+    @endpoints = { feedbacks: student_feedbacks_url(params[:student_id]) }
+  end
+
+  def create
+    schedule.feedback! MitClass.find(create_params[:recommendation_id]), create_params[:positive]
+    head :ok
+  end
+
   def update
-    feedback.update! feedback_params
+    feedback.update! update_params
     head :ok
   end
 
@@ -15,7 +24,11 @@ class FeedbacksController < ApplicationController
 
   private
 
-  def feedback_params
+  def create_params
+    params.require(:feedback).permit(:positive, :recommendation_id)
+  end
+
+  def update_params
     params.require(:feedback).permit(:positive)
   end
 
@@ -24,6 +37,6 @@ class FeedbacksController < ApplicationController
   end
 
   def feedbacks
-    @feedbacks ||= Schedule.for_student(student).feedbacks.order(:created_at)
+    @feedbacks ||= schedule.feedbacks.order(:created_at)
   end
 end

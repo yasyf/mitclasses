@@ -14,6 +14,8 @@ class Schedule < ActiveRecord::Base
 
   FEATURE_INLCUDES = [:semester, { sections: :times }, :course]
 
+  MAX_NUM_SUGGESTIONS = 100
+
   belongs_to :student
 
   has_many :feedbacks
@@ -23,6 +25,7 @@ class Schedule < ActiveRecord::Base
 
   class ScheduleSemester
     include Concerns::Features
+    include Concerns::Cacheable
 
     FEATURE_METHODS = parent::FEATURE_METHODS
 
@@ -37,8 +40,15 @@ class Schedule < ActiveRecord::Base
       @schedule = schedule
     end
 
-    def suggestions
-      @schedule.class.learning.suggestions self
+    def suggestions(**kwargs)
+      if kwargs[:cached]
+        kwargs.except!(:cached)
+        key_cached kwargs, expires_in: 1.hour do
+          @schedule.class.learning.suggestions(self, **kwargs).take(MAX_NUM_SUGGESTIONS)
+        end
+      else
+        @schedule.class.learning.suggestions self, **kwargs
+      end
     end
 
     def augmented_feature_vector
@@ -51,6 +61,10 @@ class Schedule < ActiveRecord::Base
 
     def conflicts?(mit_class)
       classes.any? { |c| mit_class.conflicts? c }
+    end
+
+    def cache_key
+      "#{@schedule.cache_key}/#{id}"
     end
 
     def id

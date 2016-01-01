@@ -108,6 +108,7 @@ class MitClass < ActiveRecord::Base
   end
 
   def as_json(options = {})
+    return super options.reverse_merge(only: [:number, :name, :description, :id]) if options[:shallow]
     json = super options.reverse_merge(
       methods: [:instructor, :course, :semester, :sections, :textbooks, :evaluation]
     )

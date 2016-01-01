@@ -8,6 +8,10 @@ module Concerns
 
     private
 
+    def schedule
+      @schedule ||= Schedule.for_student(student)
+    end
+
     def student
       @student ||= Student.where(kerberos: params[:student_id]).first!
     end
