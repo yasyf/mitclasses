@@ -65,7 +65,7 @@ module ML
 
     def feedback_vectors(schedule_ids)
       feedback_ids = ::Schedule.where(id: schedule_ids).joins(:feedbacks).pluck('DISTINCT feedbacks.id')
-      Feedback.where(id: feedback_ids).map(&:feature_vector)
+      Feedback.where(id: feedback_ids).includes(mit_class: :course).map(&:feature_vector)
     end
 
     def set_learners(schedules)
