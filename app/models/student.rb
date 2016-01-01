@@ -1,4 +1,6 @@
 class Student < ActiveRecord::Base
+  include Concerns::ReactJson
+
   ANONYMOUS_KERBEROS = 'anonymous'
 
   belongs_to :course
@@ -24,6 +26,10 @@ class Student < ActiveRecord::Base
   end
 
   private
+
+  def react_json
+    as_json(only: [:kerberos, :name])
+  end
 
   def finger
     @finger ||= SSH::Finger.new(kerberos)

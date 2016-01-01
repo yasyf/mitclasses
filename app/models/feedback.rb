@@ -1,5 +1,6 @@
 class Feedback < ActiveRecord::Base
   include Concerns::Cacheable
+  include Concerns::ReactJson
 
   belongs_to :schedule
   belongs_to :mit_class
@@ -21,6 +22,10 @@ class Feedback < ActiveRecord::Base
   end
 
   private
+
+  def react_json
+    { number: mit_class.number, name: mit_class.name, positive: positive? }
+  end
 
   def schedule_feature_vector
     Schedule.where(id: schedule_id).includes(mit_classes: Schedule::FEATURE_INLCUDES).first.feature_vector
