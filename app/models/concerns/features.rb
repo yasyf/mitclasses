@@ -6,10 +6,6 @@ module Concerns
     extend ActiveSupport::Concern
 
     class_methods do
-      def sorted_courses
-        @sorted_courses ||= Course.sorted.to_a
-      end
-
       def num_features
         @num_features ||= first.feature_vector.size - 1
       end
@@ -61,7 +57,7 @@ module Concerns
     end
 
     def classes_per_course(percent: true)
-      self.class.sorted_courses.map do |course|
+      Course.sorted.map do |course|
         count = (classes_by_course[course].try(:count) || 0).to_f
         percent ? (count / classes_count) : count
       end
@@ -78,7 +74,7 @@ module Concerns
 
     def predominant_major
       predominant = classes_by_course.keys.max_by { |c| classes_by_course[c].count }
-      self.class.sorted_courses.map { |c| (c == predominant) ? 1 : 0 }
+      Course.sorted.map { |c| (c == predominant) ? 1 : 0 }
     end
 
     def average_course_number
@@ -90,7 +86,7 @@ module Concerns
     end
 
     def average_class_number_per_course
-      self.class.sorted_courses.map do |course|
+      Course.sorted.map do |course|
         if course_classes = classes_by_course[course]
           average_class_number_given_classes course_classes
         else

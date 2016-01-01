@@ -5,14 +5,16 @@ class Course < ActiveRecord::Base
 
   validates :number, presence: true, uniqueness: true
 
-  scope :sorted, -> { order(:number) }
-
   def to_s
     number
   end
 
   def load!(semester = Semester.current)
     self.class.load! HTTP::Coursews.new(semester, self).classes, semester
+  end
+
+  def self.sorted
+    @sorted ||= order(:number).to_a
   end
 
   def self.load_all!(semester = Semester.current)
