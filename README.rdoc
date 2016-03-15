@@ -1,3 +1,5 @@
 == MIT Classes API
 
 Currently a work in progress.
+
+Best part so far is a functioning recommendation feature that, given your schedule to date, will predict/recommend which classes you should take next semester. Achieved by taking all the public historical schedules, and clustering them. Recommendations are pulled from schedules in the same cluster as you, and then run through a binary classifier for student-class pairings. Results are then sorted by number of Facebook friends who have taken or are taking the class.
